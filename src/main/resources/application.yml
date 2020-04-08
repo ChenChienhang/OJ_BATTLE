@@ -1,0 +1,33 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://118.178.253.239:3306/oj_battle?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8
+    username: root
+    password: 123456
+
+  redis:
+    host: 118.178.253.239
+
+mybatis-plus:
+  configuration:
+    #控制台打印
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    #驼峰命名
+    map-underscore-to-camel-case: true
+    #缓存全局开关
+    cache-enabled: true
+    #延时加载
+    lazy-loading-enabled: true
+    #演示加载
+    multiple-result-sets-enabled: true
+  global-config:
+    db-config:
+      id-type: assign_uuid
+
+
+salt: coding-study
+expiration-time: 3600000L * 24 * 7
+
