@@ -1,6 +1,6 @@
 package com.team10.ojbattle;
 
-import com.team10.ojbattle.utils.BCryptPasswordEncoderUtil;
+import com.team10.ojbattle.utils.BCryptPasswordEncoder;
 import com.team10.ojbattle.utils.JwtTokenUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,14 +23,14 @@ import java.util.Collection;
 public class TestApplication {
 
     @Autowired
-    BCryptPasswordEncoderUtil bCryptPasswordEncoderUtil;
+    BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
     JwtTokenUtil jwtTokenUtil;
 
     @Test
     public void test(){
-        System.out.println(bCryptPasswordEncoderUtil.encode("123456"));
+        System.out.println(bCryptPasswordEncoder.encode("123456"));
         System.out.println(jwtTokenUtil.generateToken(new UserDetails() {
             @Override
             public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -59,6 +59,8 @@ public class BattleServiceImpl implements BattleService {
         AuthUser authUser = (AuthUser) authentication.getPrincipal();
         String userId = authUser.getUserId();
         String username = authentication.getName();
+        System.out.println(userId);
+        System.out.println(username);
         boolean battleFlag = false;
         String gameId = "";
         //开启事务
@@ -81,6 +83,8 @@ public class BattleServiceImpl implements BattleService {
         stringRedisTemplate.exec();
 
         if (battleFlag) {
+            //发出心跳信息,有效期2min
+            stringRedisTemplate.opsForValue().set(ON_GAME_KEY + userId, ON_GAME_VALUE, 2, TimeUnit.MINUTES);
             //有对手，创建对局
             Game game = new Game();
             game.setId(gameId);
@@ -123,6 +127,8 @@ public class BattleServiceImpl implements BattleService {
 
         //补充对战信息
         if (matchFlag) {
+            //发出心跳信息,有效期2min
+            stringRedisTemplate.opsForValue().set(ON_GAME_KEY + userId, ON_GAME_VALUE, 2, TimeUnit.MINUTES);
             //被匹配的是play2
             LambdaUpdateWrapper<Game> wrapper = new LambdaUpdateWrapper<>();
             wrapper.eq(Game::getPlayer2Id, userId).eq(Game::getPlayer2Username, username);
@@ -142,7 +148,7 @@ public class BattleServiceImpl implements BattleService {
 
         //没有并发问题，不用事务
         //表示自己还在游戏中，有效时间3min
-        stringRedisTemplate.opsForValue().set(ON_GAME_KEY + userId, ON_GAME_VALUE, 3, TimeUnit.MINUTES);
+        stringRedisTemplate.opsForValue().set(ON_GAME_KEY + userId, ON_GAME_VALUE, 2, TimeUnit.MINUTES);
 
         //查询对方是否还在对局中
         String battleValue = stringRedisTemplate.opsForValue().get(ON_GAME_KEY + battleId);
@@ -155,6 +161,7 @@ public class BattleServiceImpl implements BattleService {
             if (PASS_GAME_VALUE.equals(battleValue)) {
                 throw new MyException(MyErrorCodeEnum.PASS_ERROR);
             }
+            //否则表示对方还在做题，直接结束
         }
     }
 

@@ -10,7 +10,7 @@ import com.team10.ojbattle.exception.MyErrorCodeEnum;
 import com.team10.ojbattle.exception.MyException;
 import com.team10.ojbattle.service.SysRoleService;
 import com.team10.ojbattle.service.SysUserService;
-import com.team10.ojbattle.utils.BCryptPasswordEncoderUtil;
+import com.team10.ojbattle.utils.BCryptPasswordEncoder;
 import io.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -35,7 +35,7 @@ import java.util.Map;
 public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> implements SysUserService, UserDetailsService {
 
     @Autowired
-    BCryptPasswordEncoderUtil bCryptPasswordEncoderUtil;
+    BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
     RedisTemplate<String, String> redisTemplate;
@@ -62,7 +62,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
         //从数据库查出的用户对象
         String encodedPassword = sysUser.getPassword();
         //和加密后的密码进行比配
-        if (!bCryptPasswordEncoderUtil.matches(rawPassword, encodedPassword)) {
+        if (!bCryptPasswordEncoder.matches(rawPassword, encodedPassword)) {
             //抛出密码错误异常
             System.out.println("checkLogin--------->密码不正确！");
             throw new MyException(MyErrorCodeEnum.LOGIN_ERROR);
@@ -103,7 +103,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
         //存入数据库
         SysUser sysUser3 = new SysUser();
         sysUser3.setEmail(user.get("email"));
-        sysUser3.setPassword(bCryptPasswordEncoderUtil.encode(user.get("password")));
+        sysUser3.setPassword(bCryptPasswordEncoder.encode(user.get("password")));
         sysUser3.setRegDate(new Date());
         sysUser3.setRoleId("1");
         sysUser3.setState("1");

@@ -1,7 +1,6 @@
 package com.team10.ojbattle.configuration.auth;
 
 
-import com.team10.ojbattle.utils.BCryptPasswordEncoderUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsUtils;
 
@@ -65,7 +65,7 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
      * 加密器
      */
     @Autowired
-    BCryptPasswordEncoderUtil bCryptPasswordEncoderUtil;
+    BCryptPasswordEncoder bCryptPasswordEncoder;
 
 
     /**
@@ -76,7 +76,7 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
      */
     @Autowired
     public void configureAuthentication(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-        authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoderUtil);
+        authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
     }
 
     @Override
