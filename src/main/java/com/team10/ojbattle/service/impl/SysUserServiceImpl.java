@@ -10,20 +10,28 @@ import com.team10.ojbattle.exception.MyErrorCodeEnum;
 import com.team10.ojbattle.exception.MyException;
 import com.team10.ojbattle.service.SysRoleService;
 import com.team10.ojbattle.service.SysUserService;
-import com.team10.ojbattle.utils.BCryptPasswordEncoder;
+
 import io.netty.util.internal.StringUtil;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * (User)表服务实现类
@@ -38,10 +46,21 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
-    RedisTemplate<String, String> redisTemplate;
+    StringRedisTemplate stringRedisTemplate;
 
     @Autowired
     private SysRoleService roleService;
+
+    @Autowired
+    RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private JavaMailSender mailSender;
+
+    private static final String EMAIL_QUEUE = "oj_battle_email";
+
+    @Value("${spring.mail.username}")
+    private String SENDER;
 
     /**
      * 登录检查用
@@ -93,7 +112,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
 
         //检验验证码
         String key = "verification_code_" + user.getOrDefault("email", "");
-        String verificationCode = redisTemplate.opsForValue().get(key);
+        String verificationCode = stringRedisTemplate.opsForValue().get(key);
         if (StringUtil.isNullOrEmpty(verificationCode)
                 || !verificationCode.equals(user.getOrDefault("verificationCode", ""))) {
             //抛出验证码异常
@@ -138,6 +157,72 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
         }
         System.out.println("loadUserByUsername......user ===> " + sysUser);
         return new AuthUser(sysUser.getUserId(), sysUser.getUserName(), sysUser.getPassword(), sysUser.getState(), authorities);
+    }
+
+    @Override
+    public void sendRegEmailProcedure(String email) {
+        //查询邮箱有没有被注册过
+        LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysUser::getEmail, email);
+        SysUser user = getOne(wrapper);
+        //邮箱已经被注册过，抛异常
+        if (user != null) {
+            throw new MyException(MyErrorCodeEnum.EMAIL_REG_ERROR);
+        }
+
+        //生成随机六位验证码
+        String verifyCode = RandomStringUtils.randomNumeric(6);
+        System.out.println("verifyCode: " + verifyCode);
+
+        //存入redis,有效期15min
+        String key = "verifyCode_";
+        stringRedisTemplate.opsForValue().set(key + email, verifyCode, 15, TimeUnit.MINUTES);
+
+        //发送到消息队列
+        Map<String, String> map = new HashMap<>(2);
+        map.put("email", email);
+        map.put("verifyCode", verifyCode);
+        System.out.println("123");
+        rabbitTemplate.convertAndSend(EMAIL_QUEUE, map);
+    }
+
+    @RabbitListener(queues = EMAIL_QUEUE)
+    @Override
+    public void sendRegEmailConsumer(Map<String, String> map)  {
+        //读取短信模板
+        System.out.println(SENDER);
+        InputStream is = this.getClass().getResourceAsStream("/email_content.txt");
+        final int bufferSize = 1024;
+        final char[] buffer = new char[bufferSize];
+        final StringBuilder out = new StringBuilder();
+        Reader in = new InputStreamReader(is, StandardCharsets.UTF_8);
+        for (; ; ) {
+            int rsz = 0;
+            try {
+                rsz = in.read(buffer, 0, buffer.length);
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("读取错误");
+            }
+            if (rsz < 0) {
+                break;
+            }
+            out.append(buffer, 0, rsz);
+        }
+        String to = map.get("email");
+        String verifyCode = map.get("verifyCode");
+        String content = out.toString()
+                .replace("DATE", new SimpleDateFormat("yyyy-MM-dd").format(new Date()))
+                .replace("VERIFYCODE", verifyCode);
+        String title = "Oj Battle 验证码";
+        System.out.println("读取" );
+        SimpleMailMessage message = new SimpleMailMessage();
+
+        message.setTo(to);
+        message.setFrom(SENDER);
+        message.setSubject(title);
+        message.setText(content);
+        mailSender.send(message);
     }
 
 }

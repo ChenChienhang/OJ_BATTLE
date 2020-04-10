@@ -2,6 +2,8 @@ package com.team10.ojbattle.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.team10.ojbattle.entity.SysUser;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 /**
@@ -28,5 +30,18 @@ public interface SysUserService extends IService<SysUser> {
      * @throws Exception
      */
     boolean register(Map<String ,String> user);
+
+
+    /**
+     * 发送验证码生产者
+     * @param email
+     */
+    void sendRegEmailProcedure(String email);
+
+    /**
+     * 发送验证码消费者
+     */
+
+    void sendRegEmailConsumer(Map<String, String> map) throws IOException;
 
 }

@@ -1,5 +1,6 @@
 package com.team10.ojbattle.controller.extend;
 
+import com.baomidou.mybatisplus.extension.api.R;
 import com.team10.ojbattle.controller.SysUserController;
 
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,10 @@ import org.springframework.web.bind.annotation.*;
 public class SysUserExtendController extends SysUserController {
 
     @GetMapping("/verification/{email}")
-   public void sendEmail(@PathVariable String email) {
+    public R<String> sendEmail(@PathVariable String email) {
+        sysUserService.sendRegEmailProcedure(email);
+        return R.ok(null);
+    }
 
-   }
+
 }
