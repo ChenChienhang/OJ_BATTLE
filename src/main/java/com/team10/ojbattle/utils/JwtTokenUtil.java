@@ -1,9 +1,9 @@
 package com.team10.ojbattle.utils;
 
-import com.team10.ojbattle.entity.auth.AuthUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -16,11 +16,16 @@ import java.util.Map;
  */
 @Component
 public class JwtTokenUtil {
-    //私钥
-    private static final String SECRET_KEY = "coding-study";
 
-    // 过期时间 毫秒,设置默认1周的时间过期
-    private  static final long EXPIRATION_TIME = 3600000L * 24*7;
+    /**
+     * 私钥
+     */
+    private final static String SECRET_KEY = "oj_battle";
+
+    /**
+     * 过期时间 毫秒,设置默认1周的时间过期
+     */
+    private final static long EXPIRATION_TIME = 3600000L * 24 * 7;
 
     /**
      * 生成令牌
@@ -88,18 +93,6 @@ public class JwtTokenUtil {
         return refreshedToken;
     }
 
-    /**
-     * 验证令牌
-     *
-     * @param token       令牌
-     * @param userDetails 用户
-     * @return 是否有效
-     */
-    public Boolean validateToken(String token, UserDetails userDetails) throws Exception {
-        AuthUser user = (AuthUser) userDetails;
-        String username = getUsernameFromToken(token);
-        return (username.equals(user.getUsername()) && !isTokenExpired(token));
-    }
 
     /**
      * 从数据声明生成令牌

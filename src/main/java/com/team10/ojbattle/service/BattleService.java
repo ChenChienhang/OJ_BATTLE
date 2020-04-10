@@ -3,6 +3,8 @@ package com.team10.ojbattle.service;
 import com.team10.ojbattle.entity.Game;
 import com.team10.ojbattle.entity.Submission;
 
+import java.util.Map;
+
 /**
  * @author: 陈健航
  * @description:
@@ -33,4 +35,6 @@ public interface BattleService {
     void submit(Submission submission);
 
     void quit();
+
+
 }

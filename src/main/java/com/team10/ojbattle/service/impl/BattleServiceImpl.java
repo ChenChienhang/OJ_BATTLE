@@ -1,22 +1,31 @@
 package com.team10.ojbattle.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.team10.ojbattle.entity.Game;
 import com.team10.ojbattle.entity.Submission;
+import com.team10.ojbattle.entity.SysUser;
 import com.team10.ojbattle.entity.auth.AuthUser;
 import com.team10.ojbattle.exception.MyErrorCodeEnum;
 import com.team10.ojbattle.exception.MyException;
 import com.team10.ojbattle.service.BattleService;
 import com.team10.ojbattle.service.GameService;
+import com.team10.ojbattle.service.SysUserService;
 import io.netty.util.internal.StringUtil;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -33,6 +42,10 @@ public class BattleServiceImpl implements BattleService {
 
     @Autowired
     GameService gameService;
+
+    @Autowired
+    SysUserService sysUserService;
+
 
     private final String WAIT_FOR_KEY = "battle_wait_match";
 
@@ -178,4 +191,8 @@ public class BattleServiceImpl implements BattleService {
         //删除自身对局信息，表示已退出
         stringRedisTemplate.delete(ON_GAME_KEY + userId);
     }
+
+
+
+
 }
