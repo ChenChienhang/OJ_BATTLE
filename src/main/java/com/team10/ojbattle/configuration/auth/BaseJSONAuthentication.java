@@ -1,10 +1,8 @@
 package com.team10.ojbattle.configuration.auth;
 
-import com.baomidou.mybatisplus.extension.api.R;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.team10.ojbattle.utils.JwtTokenUtil;
+import com.team10.ojbattle.component.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.AuthenticationException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

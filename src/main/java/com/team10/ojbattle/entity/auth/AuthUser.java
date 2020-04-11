@@ -25,15 +25,18 @@ public class AuthUser implements UserDetails {
 
     private String state;
 
+    private Integer ranking;
+
     private List<? extends GrantedAuthority> authorities;
 
     public AuthUser() {
     }
 
-    public AuthUser(String userId, String username, String password, String state, List<? extends GrantedAuthority> authorities) {
+    public AuthUser(String userId, String username, String password, String state, Integer ranking, List<? extends GrantedAuthority> authorities) {
         this.userId = userId;
         this.username = username;
         this.password = password;
+        this.ranking = ranking;
         this.state = state;
         this.authorities = authorities;
     }

@@ -9,6 +9,8 @@ import com.team10.ojbattle.service.BattleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 /**
  * @author: 陈健航
  * @description:
@@ -24,34 +26,29 @@ public class BattleExtendController {
 
     /**
      * 匹配开始
-     * @return
+     *
+     * @return 对局数据，包括题目id，对手id
      */
     @GetMapping("/match")
-    public R<Game> battleMatch() {
-        Game game = battleService.battleMatch();
-        if (game != null) {
-            return R.ok(game);
-        } else {
-            return R.failed(MyErrorCodeEnum.KEEP_MATCHING_ERROR);
-        }
+    public R<String> battleMatch() {
+        battleService.battleMatch();
+        return R.ok(null);
     }
 
     /**
      * 匹配轮询
+     *
      * @return
      */
     @GetMapping("/wait")
-    public R<Game> waitForMatching() {
-        Game game = battleService.waitForMatching();
-        if (game != null) {
-            return R.ok(game);
-        } else {
-            return R.failed(MyErrorCodeEnum.KEEP_MATCHING_ERROR);
-        }
+    public R<Map<String, String>> waitForMatching() {
+        Map<String, String> map = battleService.waitForMatching();
+        return R.ok(map);
     }
 
     /**
      * 心跳保持
+     *
      * @param battleId 对局id
      * @return
      */
@@ -70,6 +67,7 @@ public class BattleExtendController {
 
     /**
      * 该功能未完成
+     *
      * @param submission
      * @return
      */
@@ -78,8 +76,6 @@ public class BattleExtendController {
         battleService.submit(submission);
         return R.ok(null);
     }
-
-
 
 
 }
