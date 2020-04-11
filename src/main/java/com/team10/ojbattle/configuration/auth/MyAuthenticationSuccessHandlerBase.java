@@ -2,6 +2,7 @@ package com.team10.ojbattle.configuration.auth;
 
 import com.baomidou.mybatisplus.extension.api.R;
 
+import com.team10.ojbattle.entity.auth.AuthUser;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;

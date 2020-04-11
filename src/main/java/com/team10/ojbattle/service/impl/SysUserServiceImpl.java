@@ -26,6 +26,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -40,6 +41,7 @@ import java.util.concurrent.TimeUnit;
  * @since 2020-04-04 23:43:19
  */
 @Service("sysUserService")
+@Transactional(rollbackFor = Exception.class)
 public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> implements SysUserService, UserDetailsService {
 
     @Autowired
@@ -62,8 +64,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
     @Value("${spring.mail.username}")
     private String SENDER;
 
+    private static final String VERIFY_CODE_KEY = "verification_code_";
+
     /**
      * 登录检查用
+     *
      * @param username
      * @param rawPassword
      * @return
@@ -92,7 +97,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
 
     @Override
     public boolean register(Map<String, String> user) {
-        //检查邮箱是否已经被注册过
+        //检查邮箱是否已经被注册过,虽然之前已经检查过，避免并发出现
         LambdaQueryWrapper<SysUser> lambdaQueryWrapper = new LambdaQueryWrapper<>();
 
         lambdaQueryWrapper.eq(SysUser::getEmail, user.get("email"));
@@ -108,13 +113,17 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
         if (sysUser1 != null) {
             throw new MyException(MyErrorCodeEnum.USERNAME_ERROR);
         }
-
-
         //检验验证码
-        String key = "verification_code_" + user.getOrDefault("email", "");
+        String key = VERIFY_CODE_KEY + user.get("email");
+        System.out.println(("verification_code_" + "20172333112@m.scnu.edu.cn").equals(key));
+        System.out.println(key);
         String verificationCode = stringRedisTemplate.opsForValue().get(key);
+        String s = stringRedisTemplate.opsForValue().get("verification_code_20172333112@m.scnu.edu.cn");
+
+        System.out.println(verificationCode);
+
         if (StringUtil.isNullOrEmpty(verificationCode)
-                || !verificationCode.equals(user.getOrDefault("verificationCode", ""))) {
+                || !verificationCode.equals(user.get("verifyCode"))) {
             //抛出验证码异常
             throw new MyException(MyErrorCodeEnum.VERIFICATION_ERROR);
         }
@@ -133,6 +142,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
 
     /**
      * 用户token校验用
+     *
      * @param username
      * @return
      * @throws UsernameNotFoundException
@@ -156,7 +166,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
             authorities.add(new SimpleGrantedAuthority(role.getRoleName()));
         }
         System.out.println("loadUserByUsername......user ===> " + sysUser);
-        return new AuthUser(sysUser.getUserId(), sysUser.getUserName(), sysUser.getPassword(), sysUser.getState(), authorities);
+        return new AuthUser(sysUser.getUserId(), sysUser.getUserName(), sysUser.getPassword(), sysUser.getState(), sysUser.getRanking(), authorities);
     }
 
     @Override
@@ -175,8 +185,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
         System.out.println("verifyCode: " + verifyCode);
 
         //存入redis,有效期15min
-        String key = "verifyCode_";
-        stringRedisTemplate.opsForValue().set(key + email, verifyCode, 15, TimeUnit.MINUTES);
+        String key = VERIFY_CODE_KEY + email;
+        stringRedisTemplate.opsForValue().set(key, verifyCode, 15, TimeUnit.MINUTES);
 
         //发送到消息队列
         Map<String, String> map = new HashMap<>(2);
@@ -188,7 +198,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
 
     @RabbitListener(queues = EMAIL_QUEUE)
     @Override
-    public void sendRegEmailConsumer(Map<String, String> map)  {
+    public void sendRegEmailConsumer(Map<String, String> map) {
         //读取短信模板
         System.out.println(SENDER);
         InputStream is = this.getClass().getResourceAsStream("/email_content.txt");
@@ -215,7 +225,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
                 .replace("DATE", new SimpleDateFormat("yyyy-MM-dd").format(new Date()))
                 .replace("VERIFYCODE", verifyCode);
         String title = "Oj Battle 验证码";
-        System.out.println("读取" );
+        System.out.println("读取");
         SimpleMailMessage message = new SimpleMailMessage();
 
         message.setTo(to);

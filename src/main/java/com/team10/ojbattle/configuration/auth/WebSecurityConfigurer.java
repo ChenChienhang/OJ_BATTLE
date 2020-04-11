@@ -95,6 +95,7 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
                 //所有注册和登录的请求都可以通过
                 .antMatchers(HttpMethod.POST,"/user/register").permitAll()
                 .antMatchers(HttpMethod.POST,"/user/login").permitAll()
+                .antMatchers(HttpMethod.GET, "/user/verifycode/**").permitAll()
                 //有ROLE_USER可以访问所有路径
                 .antMatchers("/**").hasAuthority("ROLE_USER");
 

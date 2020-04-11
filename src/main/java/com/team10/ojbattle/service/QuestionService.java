@@ -1,6 +1,7 @@
 package com.team10.ojbattle.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.team10.ojbattle.entity.Question;
+import org.apache.ibatis.annotations.Select;
 
 /**
  * (Question)表服务接口
@@ -10,4 +11,9 @@ import com.team10.ojbattle.entity.Question;
  */
 public interface QuestionService extends IService<Question> {
 
+    /**
+     * 随机查一道题出来
+     * @return
+     */
+    Question selectOneByRandom();
 }

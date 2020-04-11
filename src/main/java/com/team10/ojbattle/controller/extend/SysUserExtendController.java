@@ -5,6 +5,9 @@ import com.team10.ojbattle.controller.SysUserController;
 
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.MalformedParameterizedTypeException;
+import java.util.Map;
+
 
 /**
  * (User)控制层扩展类，一般初次生成，后续不再覆盖。这个类提供编写自己定义的方法。
@@ -16,9 +19,15 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/user")
 public class SysUserExtendController extends SysUserController {
 
-    @GetMapping("/verification/{email}")
+    @GetMapping("/verifycode/{email}")
     public R<String> sendEmail(@PathVariable String email) {
         sysUserService.sendRegEmailProcedure(email);
+        return R.ok(null);
+    }
+
+    @PostMapping("/register")
+    public R<String> register(@RequestBody Map<String, String> map) {
+        sysUserService.register(map);
         return R.ok(null);
     }
 

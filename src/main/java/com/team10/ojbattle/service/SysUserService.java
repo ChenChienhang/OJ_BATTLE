@@ -40,8 +40,8 @@ public interface SysUserService extends IService<SysUser> {
 
     /**
      * 发送验证码消费者
+     * @param map
      */
-
-    void sendRegEmailConsumer(Map<String, String> map) throws IOException;
+    void sendRegEmailConsumer(Map<String, String> map);
 
 }

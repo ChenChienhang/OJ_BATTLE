@@ -1,15 +1,14 @@
 package com.team10.ojbattle;
 
 
-import com.team10.ojbattle.utils.JwtTokenUtil;
+import com.team10.ojbattle.component.JwtTokenUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mail.SimpleMailMessage;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,11 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.*;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author: 陈健航
@@ -48,6 +43,9 @@ public class TestApplication {
 
     @Value("${spring.mail.username}")
     private String sender;
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     @Test
     public void getBC(){
@@ -93,19 +91,24 @@ public class TestApplication {
 
     @Test
     public void rabbitTest() throws IOException {
-        String to = "20172333112@m.scnu.edu.cn";
-        String verifyCode = "verifyCode";
-        String content = "123";
-        String title = "Oj Battle 验证码";
-        System.out.println("读取" );
+//        String to = "20172333112@m.scnu.edu.cn";
+//        String verifyCode = "verifyCode";
+//        String content = "123";
+//        String title = "Oj Battle 验证码";
+//        System.out.println("读取" );
+//
+//        SimpleMailMessage message = new SimpleMailMessage();
+//        message.setTo(to);
+//        message.setFrom("853804445@qq.com");
+//        message.setSubject(title);
+//        message.setSentDate(new Date());
+//        message.setText(content);
+//        mailSender.send(message);
+//        String s = stringRedisTemplate.opsForValue().get("verification_code_20172333112@m.scnu.edu.cn");
+//        System.out.println(s);
+        stringRedisTemplate.opsForZSet().add("123", "2", 3);
+        System.out.println(stringRedisTemplate.opsForZSet().range("123", 0,-1));
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setFrom("853804445@qq.com");
-        message.setSubject(title);
-        message.setSentDate(new Date());
-        message.setText(content);
-        mailSender.send(message);
     }
 
 

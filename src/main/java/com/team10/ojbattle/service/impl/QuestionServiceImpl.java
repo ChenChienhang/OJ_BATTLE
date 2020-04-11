@@ -15,4 +15,8 @@ import org.springframework.stereotype.Service;
 @Service("questionService")
 public class QuestionServiceImpl extends ServiceImpl<QuestionDao, Question> implements QuestionService {
 
+    @Override
+    public Question selectOneByRandom() {
+        return baseMapper.selectByRandom();
+    }
 }

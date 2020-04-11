@@ -46,9 +46,9 @@ public enum MyErrorCodeEnum implements IErrorCode {
     HAVEN_NOT_LOGIN_ERROR(20007L,"未登录，请先登录"),
 
     /**
-     * 正在匹配对手中
+     *
      */
-    KEEP_MATCHING_ERROR(20011L, "正在匹配对手中"),
+    KEEP_MATCHING_ERROR(20011L, "匹配池数量不足"),
 
     /**
      * 对手长时间未响应，或已经离线或放弃
@@ -64,7 +64,17 @@ public enum MyErrorCodeEnum implements IErrorCode {
     /**
      * 对局信息异常
      */
-    GAME_ERROR(20014L, "对局信息异常");
+    GAME_ERROR(20014L, "对局信息异常"),
+
+    /**
+     * 对方没有确认重新进入匹配池
+     */
+    MATCH_ERROR(20015L, "重新进入匹配池"),
+
+    /**
+     * 对方没有确认重新进入匹配池
+     */
+    WAIT_CONFIRM_ERROR(20016L, "自己已经被匹配");
 
     private long code;
 

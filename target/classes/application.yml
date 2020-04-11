@@ -37,6 +37,9 @@ spring:
           connectiontimeout: 10000
           # 邮件发送时间的限制，单位毫秒
           writetimeout: 10000
+  #redis锁
+  klock:
+    address: 118.178.253.239:6379
 
 mybatis-plus:
   configuration:
@@ -52,7 +55,7 @@ mybatis-plus:
     multiple-result-sets-enabled: true
   global-config:
     db-config:
-      id-type: assign_uuid
+      id-type: id_worker_str
 
 
 

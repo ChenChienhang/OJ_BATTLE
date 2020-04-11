@@ -1,9 +1,8 @@
-package com.team10.ojbattle.utils;
+package com.team10.ojbattle.component;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -64,7 +63,7 @@ public class JwtTokenUtil {
      * @param token 令牌
      * @return 是否过期
      */
-    public Boolean isTokenExpired(String token) throws  Exception{
+    public Boolean isTokenExpired(String token) throws Exception{
         try {
             Claims claims = getClaimsFromToken(token);
             Date expiration = claims.getExpiration();
