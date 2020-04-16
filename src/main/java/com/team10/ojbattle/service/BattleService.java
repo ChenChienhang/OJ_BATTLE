@@ -1,6 +1,5 @@
 package com.team10.ojbattle.service;
 
-import com.team10.ojbattle.entity.Game;
 import com.team10.ojbattle.entity.Submission;
 
 import java.util.Map;
@@ -48,14 +47,14 @@ public interface BattleService {
      * 开启对局
      * @return
      */
-    Game confirm();
+    String confirm();
 
     /**
      * 确认对方开启对局
      * @return
      * @param map
      */
-    Game waitConfirm(Map<String, String> map);
+    String waitConfirm(Map<String, String> map);
 
 
 }

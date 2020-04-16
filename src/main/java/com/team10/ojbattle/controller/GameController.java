@@ -34,8 +34,20 @@ public class GameController {
      * @return 所有数据
      */
     @GetMapping
-    public R<IPage<Game>>  selectAll(Page<Game> page, Game game) {
+    public R<IPage<Game>> selectAll(Page<Game> page, Game game) {
         return R.ok (this.gameService.page(page, new QueryWrapper<>(game)));
+    }
+
+    /**
+     * 分页查询所有数据
+     * @param game 条件实体
+     * @param current 查询的页数
+     * @param size 页面大小
+     * @return 分页数据
+     */
+    @GetMapping("/{page}/{size}")
+    public R<IPage<Game>> selectPage(@RequestBody Game game, @PathVariable("page") Integer current, @PathVariable("size") Integer size) {
+        return R.ok(this.gameService.page(new Page<>(current, size), new QueryWrapper<>(game)));
     }
 
     /**

@@ -41,12 +41,12 @@ public enum MyErrorCodeEnum implements IErrorCode {
     EMAIL_EXIST_ERROR(20006L,"用户不存在"),
 
     /**
-     *
+     * 未登录，请先登录
      */
     HAVEN_NOT_LOGIN_ERROR(20007L,"未登录，请先登录"),
 
     /**
-     *
+     * 匹配池数量不足
      */
     KEEP_MATCHING_ERROR(20011L, "匹配池数量不足"),
 
@@ -60,21 +60,25 @@ public enum MyErrorCodeEnum implements IErrorCode {
      */
     PASS_ERROR(20013L, "对方玩家已经完成并通过验证"),
 
-
     /**
      * 对局信息异常
      */
     GAME_ERROR(20014L, "对局信息异常"),
 
     /**
-     * 对方没有确认重新进入匹配池
+     * 重新进入匹配池
      */
     MATCH_ERROR(20015L, "重新进入匹配池"),
 
     /**
-     * 对方没有确认重新进入匹配池
+     * 自己已经被匹配
      */
-    WAIT_CONFIRM_ERROR(20016L, "自己已经被匹配");
+    CONFIRM_ERROR(20016L, "自己已经被匹配"),
+
+    /**
+     * 等待确认匹配
+     */
+    WAIT_CONFIRM_ERROR(20017L, "等待确认匹配");
 
     private long code;
 

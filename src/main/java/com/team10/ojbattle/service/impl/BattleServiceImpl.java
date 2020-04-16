@@ -17,6 +17,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -45,37 +46,37 @@ public class BattleServiceImpl implements BattleService {
     /**
      * redis匹配队列的完整key,
      */
-    private final String WAIT_FOR_KEY = "BATTLE_WAIT_MATCH";
+    private static final String WAIT_FOR_KEY = "BATTLE_WAIT_MATCH";
 
     /**
      * redis匹配用的key
      */
-    private final String MATCH_LOCK_KEY = "MATCH_LOCK_KEY";
+    private static final String MATCH_LOCK_KEY = "MATCH_LOCK_KEY";
 
     /**
      * 因为匹配池的zset无法实现成员过期，所以要加点辅助key
      */
-    private final String MATCH_EXPIRE_KEY = "MATCH_EXPIRE:";
+    private static final String MATCH_EXPIRE_KEY = "MATCH_EXPIRE:";
 
     /**
      * 通知对手的id，后面要加上battleId
      */
-    private final String IS_MATCH_KEY = "BATTLE_IS_MATCH:";
+    private static final String IS_MATCH_KEY = "BATTLE_IS_MATCH:";
 
     /**
      * 表示自己还在对局的key,后面加自己的id
      */
-    private final String ON_GAME_KEY = "BATTLE_ON_GAME:";
+    private static final String ON_GAME_KEY = "BATTLE_ON_GAME:";
 
     /**
      * 还在对局中value
      */
-    private final String ON_GAME_VALUE = "ON_GAME:";
+    private static final String ON_GAME_VALUE = "ON_GAME:";
 
     /**
      * 提交value
      */
-    private final String PASS_GAME_VALUE = "PASS_GAME";
+    private static final String PASS_GAME_VALUE = "PASS_GAME";
 
 
     @Klock(keys = MATCH_LOCK_KEY)
@@ -87,18 +88,22 @@ public class BattleServiceImpl implements BattleService {
         String username = authUser.getUsername();
         Integer ranking = authUser.getRanking();
         String userData = userId + "_" + username;
+        //删除可能存在的gameKey
+        stringRedisTemplate.delete(ON_GAME_KEY + userData);
         //把自己扔进匹配池
         stringRedisTemplate.opsForZSet().add(WAIT_FOR_KEY, userData, ranking);
         //zset成员不能设过期时间，另外用一个键值对辅助。
         stringRedisTemplate.opsForValue().set(MATCH_EXPIRE_KEY + userData, "1", 15, TimeUnit.SECONDS);
     }
 
+
     /**
      *
-     * @return
+     * @return 创建好的游戏对局id
      */
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public Game confirm() {
+    public String confirm() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         AuthUser authUser = (AuthUser) authentication.getPrincipal();
         String userId = authUser.getUserId();
@@ -117,35 +122,40 @@ public class BattleServiceImpl implements BattleService {
         gameService.save(game);
 
         //通知对方我已经确认了对局，并且开启了对局
-        String battleData = stringRedisTemplate.opsForValue().getAndSet(IS_MATCH_KEY + userData, game.getId());
+        String opponentData = stringRedisTemplate.opsForValue().getAndSet(IS_MATCH_KEY + userData, game.getId());
 
-        //现在回填信息是因为避免redis并发da导致的问题
-        assert battleData != null;
-        String[] temp = battleData.split("_");
-        String battleId = temp[0];
-        String battleName = temp[1];
-        game.setPlayer2Id(battleId);
-        game.setPlayer2Username(battleName);
-        gameService.save(game);
-        return game;
+        //现在回填信息是因为避免redis并发导致的问题
+        assert opponentData != null;
+        String[] temp = opponentData.split("_");
+        String opponentId = temp[0];
+        String opponentName = temp[1];
+        game.setPlayer2Id(opponentId);
+        game.setPlayer2Username(opponentName);
+        gameService.updateById(game);
+        return game.getId();
     }
 
+    /**
+     * 等待确认，可能等待确认异常
+     * @param map 对手id，对手name
+     * @return 对局id
+     */
     @Override
-    public Game waitConfirm(Map<String, String> map) {
+    public String waitConfirm(Map<String, String> map) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         AuthUser authUser = (AuthUser) authentication.getPrincipal();
         String userId = authUser.getUserId();
         String username = authUser.getUsername();
         String userData = userId + "_" + username;
 
-        String battleData = map.get("battleId") + "_" + map.get("battleName");
-        String gameId = stringRedisTemplate.opsForValue().get(IS_MATCH_KEY + battleData);
+        String opponentData = map.get("opponentId") + "_" + map.get("opponentName");
+        String gameId = stringRedisTemplate.opsForValue().get(IS_MATCH_KEY + opponentData);
         if (userData.equals(gameId)) {
             //value没有改变，对方还没有确认
-            return null;
+            throw new MyException(MyErrorCodeEnum.WAIT_CONFIRM_ERROR);
         }
         //取出来的是gameId，对方已经开启对局
-        return gameService.getById(gameId);
+        return gameId;
     }
 
     /**
@@ -168,7 +178,7 @@ public class BattleServiceImpl implements BattleService {
         Long rank = stringRedisTemplate.opsForZSet().rank(WAIT_FOR_KEY, userData);
         if (rank == null) {
             //自己已经被匹配
-            throw new MyException(MyErrorCodeEnum.WAIT_CONFIRM_ERROR);
+            throw new MyException(MyErrorCodeEnum.CONFIRM_ERROR);
         }
 
         //查看匹配池长度是否大于1。
@@ -184,9 +194,10 @@ public class BattleServiceImpl implements BattleService {
         //如果是池中末尾就特殊地往前匹配，例如25匹配20。
         //对战的信息
         boolean keepMatching;
-        String battleData = null;
+        String opponentData = null;
         do {
             Set<String> range;
+            //最后一个
             if (rank + 1 == size) {
                 range = stringRedisTemplate.opsForZSet().range(WAIT_FOR_KEY, rank, rank - 1);
             } else {
@@ -194,49 +205,50 @@ public class BattleServiceImpl implements BattleService {
             }
             if (range != null) {
                 //取出set的元素，应该只有一个
-                battleData = Arrays.asList(range.toArray(new String[0])).get(0);
+                opponentData = Arrays.asList(range.toArray(new String[0])).get(0);
             }
 
             //取出后还要判断这个用户时候还有效，即排除加入匹配池却没有更新轮询状态的（点击了匹配，然后没有开始游戏就关闭了窗口）
-            String exist = stringRedisTemplate.opsForValue().get(MATCH_EXPIRE_KEY + battleData);
+            String exist = stringRedisTemplate.opsForValue().get(MATCH_EXPIRE_KEY + opponentData);
 
             //是个无效用户，删除
             if (exist == null) {
                 //删除该无效用户
-                stringRedisTemplate.opsForZSet().remove(WAIT_FOR_KEY, battleData);
+                stringRedisTemplate.opsForZSet().remove(WAIT_FOR_KEY, opponentData);
                 //清空
-                battleData = null;
+                opponentData = null;
                 size = stringRedisTemplate.opsForZSet().size(WAIT_FOR_KEY);
 
                 //匹配池长度仍然大于1，继续匹配。匹配池数量不足就不匹配了
                 keepMatching = size != null && size > 1;
             } else {
-                //匹配到了，删除自己的信息
+                //匹配到了，在连接池中删除自己和对手的信息
                 stringRedisTemplate.opsForZSet().remove(WAIT_FOR_KEY, userData);
+                stringRedisTemplate.opsForZSet().remove(WAIT_FOR_KEY, opponentData);
                 keepMatching = false;
             }
         } while (keepMatching);
 
         //匹配池数量不够而跳出循环，返回匹配中错误码
-        if (battleData == null) {
+        if (opponentData == null) {
             //池中数量不足，自己也没有被匹配，但是仍然要刷新时间，表示自己仍在匹配池中
             stringRedisTemplate.opsForValue().set(MATCH_EXPIRE_KEY + userData, "1", 15, TimeUnit.SECONDS);
             throw new MyException(MyErrorCodeEnum.KEEP_MATCHING_ERROR);
         }
 
-        String[] temp = battleData.split("_");
-        String battleId = temp[0];
-        String battleName = temp[1];
-        res.put("battleId", battleId);
-        res.put("battleName", battleName);
+        String[] temp = opponentData.split("_");
+        String opponentId = temp[0];
+        String opponentName = temp[1];
+        res.put("opponentId", opponentId);
+        res.put("opponentName", opponentName);
         //利用redis通知对方我已经匹配到你了，请对方创建对局，然后我通过查询redis来confim,当对方确认后，value变成gameId，
         //如果该值过期，表示对方没有确认，重新进入匹配
-        stringRedisTemplate.opsForValue().set(IS_MATCH_KEY + battleData, userData, 10, TimeUnit.SECONDS);
+        stringRedisTemplate.opsForValue().set(IS_MATCH_KEY + opponentData, userData, 10, TimeUnit.SECONDS);
         return res;
     }
 
     @Override
-    public void heartBeat(String battleId) {
+    public void heartBeat(String opponentId) {
         //获取userId
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         AuthUser authUser = (AuthUser) authentication.getPrincipal();
@@ -247,14 +259,14 @@ public class BattleServiceImpl implements BattleService {
         stringRedisTemplate.opsForValue().set(ON_GAME_KEY + userId, ON_GAME_VALUE, 2, TimeUnit.MINUTES);
 
         //查询对方是否还在对局中
-        String battleValue = stringRedisTemplate.opsForValue().get(ON_GAME_KEY + battleId);
+        String opponentValue = stringRedisTemplate.opsForValue().get(ON_GAME_KEY + opponentId);
 
         //对方不在对局中，已经放弃或者离线
-        if (StringUtil.isNullOrEmpty(battleValue)) {
+        if (opponentValue == null) {
             throw new MyException(MyErrorCodeEnum.QUIT_ERROR);
         } else {
             //对方还在对局，且已经完成对局
-            if (PASS_GAME_VALUE.equals(battleValue)) {
+            if (PASS_GAME_VALUE.equals(opponentValue)) {
                 throw new MyException(MyErrorCodeEnum.PASS_ERROR);
             }
             //否则表示对方还在做题，直接结束
@@ -265,6 +277,9 @@ public class BattleServiceImpl implements BattleService {
     public void submit(Submission submission) {
     }
 
+    /**
+     * 退出对局，删除对局
+     */
     @Override
     public void quit() {
         //获取userId

@@ -58,7 +58,6 @@ public class SubmissionController {
     @PostMapping
     public R<Integer> insert(@RequestBody Submission submission) {
         boolean rs = this.submissionService.save(submission);
-        
         return R.ok(null);
     }
 

@@ -2,9 +2,7 @@ package com.team10.ojbattle.controller.extend;
 
 
 import com.baomidou.mybatisplus.extension.api.R;
-import com.team10.ojbattle.entity.Game;
 import com.team10.ojbattle.entity.Submission;
-import com.team10.ojbattle.exception.MyErrorCodeEnum;
 import com.team10.ojbattle.service.BattleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
