@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
  * (Question)表实体类
  *
  * @author 陈健航
- * @since 2020-04-04 23:50:21
+ * @since 2020-04-17 10:32:31
  */
 @Data
 @NoArgsConstructor
@@ -20,7 +20,7 @@ public class Question extends Model<Question> {
     /**
      * 题目id
      */
-     private String id;
+     private Long id;
 
     
     /**
@@ -50,11 +50,17 @@ public class Question extends Model<Question> {
     /**
      * 难度
      */
-     private Object difficulty;
+     private Integer difficulty;
 
     
     /**
      * 创建时间
      */
      private Date createTime;
+
+    
+    /**
+     * 更新时间
+     */
+     private Date updateTime;
 }

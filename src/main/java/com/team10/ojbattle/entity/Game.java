@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
  * (Game)表实体类
  *
  * @author 陈健航
- * @since 2020-04-04 23:50:13
+ * @since 2020-04-17 10:32:25
  */
 @Data
 @NoArgsConstructor
@@ -20,13 +20,13 @@ public class Game extends Model<Game> {
     /**
      * 对局id
      */
-     private String id;
+     private Long id;
 
     
     /**
      * 用户1
      */
-     private String player1Id;
+     private Long player1Id;
 
     
     /**
@@ -38,7 +38,7 @@ public class Game extends Model<Game> {
     /**
      * 用户2
      */
-     private String player2Id;
+     private Long player2Id;
 
     
     /**
@@ -50,7 +50,7 @@ public class Game extends Model<Game> {
     /**
      * 题目id
      */
-     private String questionId;
+     private Long questionId;
 
     
     /**
@@ -62,7 +62,7 @@ public class Game extends Model<Game> {
     /**
      * 胜利用户id
      */
-     private String winnerId;
+     private Long winnerId;
 
     
     /**
@@ -74,7 +74,7 @@ public class Game extends Model<Game> {
     /**
      * 1:对局模式，2：练习模式（方便扩展）
      */
-     private String type;
+     private Integer type;
 
     
     /**
@@ -93,4 +93,16 @@ public class Game extends Model<Game> {
      * 用户2结束时间（第一次正确提交）
      */
      private Date player2EndTime;
+
+    
+    /**
+     * 创建时间
+     */
+     private Date createTime;
+
+    
+    /**
+     * 更新时间
+     */
+     private Date updateTime;
 }

@@ -18,7 +18,7 @@ import java.util.List;
  * (SysRole)控制层，建议不要修改，如果有新增的方法，在子类中写
  *
  * @author 陈健航
- * @since 2020-04-08 09:48:09
+ * @since 2020-04-17 10:38:10
  */
 @CrossOrigin
 public class SysRoleController {
@@ -27,17 +27,27 @@ public class SysRoleController {
     protected SysRoleService sysRoleService; 
     
     /**
-     * 分页查询所有数据
-     *
-     * @param page 分页对象
-     * @param sysRole 查询实体
+     * 查询所有数据
+     * 
      * @return 所有数据
      */
-    @GetMapping
-    public R<IPage<SysRole>> selectAll(Page<SysRole> page, SysRole sysRole) {
-        return R.ok (this.sysRoleService.page(page, new QueryWrapper<>(sysRole)));
+    @GetMapping("/all")
+    public R<List<SysRole>> selectAll() {
+        return R.ok(this.sysRoleService.list());
     }
-
+    
+    /**
+     * 分页查询所有数据
+     * 
+     * @param current 查询的页数
+     * @param size 页面大小
+     * @return 分页数据
+     */
+    @GetMapping
+    public R<IPage<SysRole>> selectPage(@RequestParam(defaultValue = "1", value = "pageNum") Integer current, @RequestParam(defaultValue = "10", value = "pageSize") Integer size) {
+        return R.ok(this.sysRoleService.page(new Page<>(current, size), null));
+    }
+    
     /**
      * 通过主键查询单条数据
      *
@@ -56,10 +66,9 @@ public class SysRoleController {
      * @return 新增结果
      */
     @PostMapping
-    public R<Integer> insert(@RequestBody SysRole sysRole) {
+    public R<Long> insert(@RequestBody SysRole sysRole) {
         boolean rs = this.sysRoleService.save(sysRole);
-        
-        return R.ok(null);
+        return R.ok(rs ? sysRole.getId() : 0);
     }
 
     /**
@@ -69,9 +78,9 @@ public class SysRoleController {
      * @return 修改结果
      */
     @PutMapping
-    public R<Integer> update(@RequestBody SysRole sysRole) {
+    public R<Long> update(@RequestBody SysRole sysRole) {
         boolean rs = this.sysRoleService.updateById(sysRole);
-        return R.ok(null);
+        return R.ok(rs ? sysRole.getId() : 0);
     }
 
     /**

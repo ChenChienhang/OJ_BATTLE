@@ -15,29 +15,39 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * (User)控制层，建议不要修改，如果有新增的方法，在子类中写
+ * (SysUser)控制层，建议不要修改，如果有新增的方法，在子类中写
  *
  * @author 陈健航
- * @since 2020-04-04 23:43:20
+ * @since 2020-04-17 10:38:16
  */
 @CrossOrigin
 public class SysUserController {
     
     @Autowired
-    protected SysUserService sysUserService;
+    protected SysUserService sysUserService; 
+    
+    /**
+     * 查询所有数据
+     * 
+     * @return 所有数据
+     */
+    @GetMapping("/all")
+    public R<List<SysUser>> selectAll() {
+        return R.ok(this.sysUserService.list());
+    }
     
     /**
      * 分页查询所有数据
-     *
-     * @param page 分页对象
-     * @param sysUser 查询实体
-     * @return 所有数据
+     * 
+     * @param current 查询的页数
+     * @param size 页面大小
+     * @return 分页数据
      */
     @GetMapping
-    public R<IPage<SysUser>>  selectAll(Page<SysUser> page, SysUser sysUser) {
-        return R.ok (this.sysUserService.page(page, new QueryWrapper<>(sysUser)));
+    public R<IPage<SysUser>> selectPage(@RequestParam(defaultValue = "1", value = "pageNum") Integer current, @RequestParam(defaultValue = "10", value = "pageSize") Integer size) {
+        return R.ok(this.sysUserService.page(new Page<>(current, size), null));
     }
-
+    
     /**
      * 通过主键查询单条数据
      *
@@ -56,10 +66,9 @@ public class SysUserController {
      * @return 新增结果
      */
     @PostMapping
-    public R<Integer> insert(@RequestBody SysUser sysUser) {
+    public R<Long> insert(@RequestBody SysUser sysUser) {
         boolean rs = this.sysUserService.save(sysUser);
-        
-        return R.ok(null);
+        return R.ok(rs ? sysUser.getId() : 0);
     }
 
     /**
@@ -69,9 +78,9 @@ public class SysUserController {
      * @return 修改结果
      */
     @PutMapping
-    public R<Integer>  update(@RequestBody SysUser sysUser) {
+    public R<Long> update(@RequestBody SysUser sysUser) {
         boolean rs = this.sysUserService.updateById(sysUser);
-        return R.ok(null);
+        return R.ok(rs ? sysUser.getId() : 0);
     }
 
     /**

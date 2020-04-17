@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
  * (Submission)表实体类
  *
  * @author 陈健航
- * @since 2020-04-04 23:50:00
+ * @since 2020-04-17 10:51:11
  */
 @Data
 @NoArgsConstructor
@@ -20,53 +20,59 @@ public class Submission extends Model<Submission> {
     /**
      * id
      */
-     private String id;
+     private Long id;
 
     
     /**
      * 对局id
      */
-     private String gameId;
+     private Long gameId;
 
     
     /**
      * 题目id
      */
-     private String questionId;
+     private Long questionId;
 
     
     /**
      * 题目标题
      */
-     private String questionTitle;
+     private Long queetionTitle;
 
     
     /**
      * 用户id
      */
-     private String playerId;
+     private Long playerId;
 
     
     /**
-     * 代码
+     * 提交代码
      */
      private String code;
 
     
     /**
-     * 0:未通过，1：通过
+     * 0：未通过，1：通过
      */
-     private String isCorrect;
+     private Integer isCorrect;
 
     
     /**
-     * 如果不通过的原因，例如编译错误，结果错误，超时
+     * 未通过的原因
      */
      private String result;
 
     
     /**
-     * 提交时间
+     * 创建时间（提交时间）
      */
-     private Date submitTime;
+     private Date createTime;
+
+    
+    /**
+     * 修改时间
+     */
+     private Date updateTime;
 }

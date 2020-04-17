@@ -18,7 +18,7 @@ import java.util.List;
  * (Question)控制层，建议不要修改，如果有新增的方法，在子类中写
  *
  * @author 陈健航
- * @since 2020-04-04 23:50:21
+ * @since 2020-04-17 10:33:45
  */
 @CrossOrigin
 public class QuestionController {
@@ -27,17 +27,27 @@ public class QuestionController {
     protected QuestionService questionService; 
     
     /**
-     * 分页查询所有数据
-     *
-     * @param page 分页对象
-     * @param question 查询实体
+     * 查询所有数据
+     * 
      * @return 所有数据
      */
-    @GetMapping
-    public R<IPage<Question>>  selectAll(Page<Question> page, Question question) {
-        return R.ok (this.questionService.page(page, new QueryWrapper<>(question)));
+    @GetMapping("/all")
+    public R<List<Question>> selectAll() {
+        return R.ok(this.questionService.list());
     }
-
+    
+    /**
+     * 分页查询所有数据
+     * 
+     * @param current 查询的页数
+     * @param size 页面大小
+     * @return 分页数据
+     */
+    @GetMapping
+    public R<IPage<Question>> selectPage(@RequestParam(defaultValue = "1", value = "pageNum") Integer current, @RequestParam(defaultValue = "10", value = "pageSize") Integer size) {
+        return R.ok(this.questionService.page(new Page<>(current, size), null));
+    }
+    
     /**
      * 通过主键查询单条数据
      *
@@ -56,10 +66,9 @@ public class QuestionController {
      * @return 新增结果
      */
     @PostMapping
-    public R<Integer> insert(@RequestBody Question question) {
+    public R<Long> insert(@RequestBody Question question) {
         boolean rs = this.questionService.save(question);
-        
-        return R.ok(null);
+        return R.ok(rs ? question.getId() : 0);
     }
 
     /**
@@ -69,9 +78,9 @@ public class QuestionController {
      * @return 修改结果
      */
     @PutMapping
-    public R<Integer>  update(@RequestBody Question question) {
+    public R<Long> update(@RequestBody Question question) {
         boolean rs = this.questionService.updateById(question);
-        return R.ok(null);
+        return R.ok(rs ? question.getId() : 0);
     }
 
     /**

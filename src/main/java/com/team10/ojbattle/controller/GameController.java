@@ -18,7 +18,7 @@ import java.util.List;
  * (Game)控制层，建议不要修改，如果有新增的方法，在子类中写
  *
  * @author 陈健航
- * @since 2020-04-04 23:50:13
+ * @since 2020-04-17 10:33:34
  */
 @CrossOrigin
 public class GameController {
@@ -27,29 +27,27 @@ public class GameController {
     protected GameService gameService; 
     
     /**
-     * 分页查询所有数据
-     *
-     * @param page 分页对象
-     * @param game 查询实体
+     * 查询所有数据
+     * 
      * @return 所有数据
      */
-    @GetMapping
-    public R<IPage<Game>> selectAll(Page<Game> page, Game game) {
-        return R.ok (this.gameService.page(page, new QueryWrapper<>(game)));
+    @GetMapping("/all")
+    public R<List<Game>> selectAll() {
+        return R.ok(this.gameService.list());
     }
-
+    
     /**
      * 分页查询所有数据
-     * @param game 条件实体
+     * 
      * @param current 查询的页数
      * @param size 页面大小
      * @return 分页数据
      */
-    @GetMapping("/{page}/{size}")
-    public R<IPage<Game>> selectPage(@RequestBody Game game, @PathVariable("page") Integer current, @PathVariable("size") Integer size) {
-        return R.ok(this.gameService.page(new Page<>(current, size), new QueryWrapper<>(game)));
+    @GetMapping
+    public R<IPage<Game>> selectPage(@RequestParam(defaultValue = "1", value = "pageNum") Integer current, @RequestParam(defaultValue = "10", value = "pageSize") Integer size) {
+        return R.ok(this.gameService.page(new Page<>(current, size), null));
     }
-
+    
     /**
      * 通过主键查询单条数据
      *
@@ -68,9 +66,9 @@ public class GameController {
      * @return 新增结果
      */
     @PostMapping
-    public R<Integer> insert(@RequestBody Game game) {
+    public R<Long> insert(@RequestBody Game game) {
         boolean rs = this.gameService.save(game);
-        return R.ok(null);
+        return R.ok(rs ? game.getId() : 0);
     }
 
     /**
@@ -80,9 +78,9 @@ public class GameController {
      * @return 修改结果
      */
     @PutMapping
-    public R<Long>  update(@RequestBody Game game) {
+    public R<Long> update(@RequestBody Game game) {
         boolean rs = this.gameService.updateById(game);
-        return R.ok(null);
+        return R.ok(rs ? game.getId() : 0);
     }
 
     /**
