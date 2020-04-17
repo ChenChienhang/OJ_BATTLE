@@ -23,14 +23,15 @@ public interface BattleService {
      * @return 可能抛出2种异常，1.还在匹配中。2.自身已经被匹配。顺利执行返回表示该用户成功匹配对手，返回map。
      * batlleId和battleName
      */
-    Map<String, String> waitForMatching();
+    Map<String, String> firstShakeHand();
 
 
     /**
      * 心跳保持
      * @param battleId
+     * @return
      */
-    void heartBeat(String battleId);
+    String heartBeat(String battleId);
 
     /**
      * 提交
@@ -47,14 +48,14 @@ public interface BattleService {
      * 开启对局
      * @return
      */
-    String confirm();
+    Long secondShakeHand();
 
     /**
      * 确认对方开启对局
      * @return
      * @param map
      */
-    String waitConfirm(Map<String, String> map);
+    String thirdShakeHand(Map<String, String> map);
 
 
 }

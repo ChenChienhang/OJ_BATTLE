@@ -77,7 +77,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
     public boolean checkLogin(String username, String rawPassword) {
         //已经做了空异常处理，一定不为空
         LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(SysUser::getUserName, username);
+        queryWrapper.eq(SysUser::getName, username);
         SysUser sysUser = baseMapper.selectOne(queryWrapper);
         if (sysUser == null) {
             throw new MyException(MyErrorCodeEnum.EMAIL_EXIST_ERROR);
@@ -108,7 +108,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
 
         //检查用户名是否已经被注册过
         lambdaQueryWrapper.clear();
-        lambdaQueryWrapper.eq(SysUser::getUserName, user.get("username"));
+        lambdaQueryWrapper.eq(SysUser::getName, user.get("username"));
         SysUser sysUser1 = this.getOne(lambdaQueryWrapper);
         if (sysUser1 != null) {
             throw new MyException(MyErrorCodeEnum.USERNAME_ERROR);
@@ -132,9 +132,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
         SysUser sysUser3 = new SysUser();
         sysUser3.setEmail(user.get("email"));
         sysUser3.setPassword(bCryptPasswordEncoder.encode(user.get("password")));
-        sysUser3.setRegDate(new Date());
         sysUser3.setRoleId("1");
-        sysUser3.setState("1");
+        sysUser3.setState(1);
         this.save(sysUser3);
         return true;
     }
@@ -151,7 +150,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         //根据用户名查询用户
         LambdaQueryWrapper<SysUser> userWrapper = new LambdaQueryWrapper<>();
-        userWrapper.eq(SysUser::getUserName, username);
+        userWrapper.eq(SysUser::getName, username);
         SysUser sysUser = this.getOne(userWrapper);
         if (sysUser == null) {
             System.out.println("checkLogin--------->账号不存在，请重新尝试！");
@@ -159,14 +158,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
         }
         //赋予角色
         LambdaQueryWrapper<SysRole> roleWrapper = new LambdaQueryWrapper<>();
-        roleWrapper.eq(SysRole::getRoleId, sysUser.getUserId());
+        roleWrapper.eq(SysRole::getId, sysUser.getRoleId());
         List<SysRole> roles = roleService.list(roleWrapper);
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         for (SysRole role : roles) {
-            authorities.add(new SimpleGrantedAuthority(role.getRoleName()));
+            authorities.add(new SimpleGrantedAuthority(role.getName()));
         }
         System.out.println("loadUserByUsername......user ===> " + sysUser);
-        return new AuthUser(sysUser.getUserId(), sysUser.getUserName(), sysUser.getPassword(), sysUser.getState(), sysUser.getRanking(), authorities);
+        return new AuthUser(sysUser.getId(), sysUser.getName(), sysUser.getPassword(), sysUser.getState(), sysUser.getRanking(), authorities);
     }
 
     @Override

@@ -17,13 +17,13 @@ import java.util.List;
 @Component
 public class AuthUser implements UserDetails {
 
-    private String userId;
+    private Long userId;
 
     private String username;
 
     private String password;
 
-    private String state;
+    private Integer state;
 
     private Integer ranking;
 
@@ -32,7 +32,7 @@ public class AuthUser implements UserDetails {
     public AuthUser() {
     }
 
-    public AuthUser(String userId, String username, String password, String state, Integer ranking, List<? extends GrantedAuthority> authorities) {
+    public AuthUser(Long userId, String username, String password, Integer state, Integer ranking, List<? extends GrantedAuthority> authorities) {
         this.userId = userId;
         this.username = username;
         this.password = password;
@@ -91,11 +91,4 @@ public class AuthUser implements UserDetails {
                 '}';
     }
 
-    public String getUserId() {
-        return userId;
-    }
-
-    public String getState() {
-        return state;
-    }
 }

@@ -3,7 +3,6 @@ package com.team10.ojbattle.controller;
 import com.team10.ojbattle.entity.SysRole;
 import com.team10.ojbattle.service.SysRoleService;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.api.R;
