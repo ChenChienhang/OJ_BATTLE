@@ -9,6 +9,13 @@
     "custom" : false,
     "ext" : { }
   }, {
+    "name" : "userId",
+    "comment" : null,
+    "type" : null,
+    "shortType" : null,
+    "custom" : false,
+    "ext" : { }
+  }, {
     "name" : "roleId",
     "comment" : null,
     "type" : null,
@@ -16,7 +23,14 @@
     "custom" : false,
     "ext" : { }
   }, {
-    "name" : "userId",
+    "name" : "createTime",
+    "comment" : null,
+    "type" : null,
+    "shortType" : null,
+    "custom" : false,
+    "ext" : { }
+  }, {
+    "name" : "updateTime",
     "comment" : null,
     "type" : null,
     "shortType" : null,

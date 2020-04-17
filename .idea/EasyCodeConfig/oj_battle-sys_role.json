@@ -2,14 +2,14 @@
   "name" : "SysRole",
   "comment" : null,
   "fullColumn" : [ {
-    "name" : "roleId",
+    "name" : "id",
     "comment" : null,
     "type" : null,
     "shortType" : null,
     "custom" : false,
     "ext" : { }
   }, {
-    "name" : "roleName",
+    "name" : "name",
     "comment" : null,
     "type" : null,
     "shortType" : null,
@@ -17,6 +17,20 @@
     "ext" : { }
   }, {
     "name" : "description",
+    "comment" : null,
+    "type" : null,
+    "shortType" : null,
+    "custom" : false,
+    "ext" : { }
+  }, {
+    "name" : "createTime",
+    "comment" : null,
+    "type" : null,
+    "shortType" : null,
+    "custom" : false,
+    "ext" : { }
+  }, {
+    "name" : "updateTime",
     "comment" : null,
     "type" : null,
     "shortType" : null,

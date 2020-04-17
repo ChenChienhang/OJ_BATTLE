@@ -23,7 +23,7 @@
     "custom" : false,
     "ext" : { }
   }, {
-    "name" : "questionTitle",
+    "name" : "queetionTitle",
     "comment" : null,
     "type" : null,
     "shortType" : null,
@@ -58,7 +58,14 @@
     "custom" : false,
     "ext" : { }
   }, {
-    "name" : "submitTime",
+    "name" : "createTime",
+    "comment" : null,
+    "type" : null,
+    "shortType" : null,
+    "custom" : false,
+    "ext" : { }
+  }, {
+    "name" : "updateTime",
     "comment" : null,
     "type" : null,
     "shortType" : null,
