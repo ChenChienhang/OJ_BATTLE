@@ -1,4 +1,5 @@
 package com.team10.ojbattle.entity;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
@@ -15,7 +16,7 @@ import lombok.NoArgsConstructor;
 @SuppressWarnings("serial")
 public class SysUserRole extends Model<SysUserRole> {
 
-    @TableId
+    @TableId(type = IdType.ASSIGN_ID)
     /**
      * id
      */

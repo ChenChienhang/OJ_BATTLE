@@ -1,7 +1,10 @@
 package com.team10.ojbattle;
 
 
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.team10.ojbattle.component.JwtTokenUtil;
+import com.team10.ojbattle.entity.SysUser;
+import com.team10.ojbattle.service.SysUserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -16,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.*;
+import java.net.UnknownServiceException;
 import java.util.Collection;
 
 /**
@@ -36,6 +40,9 @@ public class TestApplication {
 
     @Autowired
     RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    SysUserService sysUserService;
 
 
     @Autowired
@@ -106,8 +113,8 @@ public class TestApplication {
 //        mailSender.send(message);
 //        String s = stringRedisTemplate.opsForValue().get("verification_code_20172333112@m.scnu.edu.cn");
 //        System.out.println(s);
-        stringRedisTemplate.opsForZSet().add("123", "2", 3);
-        System.out.println(stringRedisTemplate.opsForZSet().range("123", 0,-1));
+        SysUser user = new SysUser();
+        sysUserService.save(user);
 
     }
 

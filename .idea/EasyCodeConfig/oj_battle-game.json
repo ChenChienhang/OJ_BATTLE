@@ -72,13 +72,6 @@
     "custom" : false,
     "ext" : { }
   }, {
-    "name" : "startTime",
-    "comment" : null,
-    "type" : null,
-    "shortType" : null,
-    "custom" : false,
-    "ext" : { }
-  }, {
     "name" : "player1EndTime",
     "comment" : null,
     "type" : null,
