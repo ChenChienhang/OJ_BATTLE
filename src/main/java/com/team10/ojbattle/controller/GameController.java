@@ -3,7 +3,6 @@ package com.team10.ojbattle.controller;
 import com.team10.ojbattle.entity.Game;
 import com.team10.ojbattle.service.GameService;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.api.R;
@@ -43,7 +42,7 @@ public class GameController {
      * @param size 页面大小
      * @return 分页数据
      */
-    @GetMapping
+    @GetMapping("/page")
     public R<IPage<Game>> selectPage(@RequestParam(defaultValue = "1", value = "pageNum") Integer current, @RequestParam(defaultValue = "10", value = "pageSize") Integer size) {
         return R.ok(this.gameService.page(new Page<>(current, size), null));
     }
@@ -90,7 +89,7 @@ public class GameController {
      * @return 删除结果
      */
     @DeleteMapping
-    public R<Boolean> delete(@RequestParam("idList") List<Long> idList) {
+    public R<Boolean> delete(@RequestParam("idList") List<Integer> idList) {
         return R.ok(this.gameService.removeByIds(idList));
     }
 }

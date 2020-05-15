@@ -1,13 +1,20 @@
 package com.team10.ojbattle.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.team10.ojbattle.component.FastDFSUtil;
 import com.team10.ojbattle.dao.SysUserDao;
+import com.team10.ojbattle.entity.FastDFSFile;
+import com.team10.ojbattle.entity.Game;
 import com.team10.ojbattle.entity.SysRole;
 import com.team10.ojbattle.entity.SysUser;
 import com.team10.ojbattle.entity.auth.AuthUser;
-import com.team10.ojbattle.exception.MyErrorCodeEnum;
-import com.team10.ojbattle.exception.MyException;
+import com.team10.ojbattle.common.exception.MyErrorCodeEnum;
+import com.team10.ojbattle.common.exception.MyException;
+import com.team10.ojbattle.service.GameService;
 import com.team10.ojbattle.service.SysRoleService;
 import com.team10.ojbattle.service.SysUserService;
 
@@ -21,12 +28,15 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -42,7 +52,8 @@ import java.util.concurrent.TimeUnit;
  */
 @Service("sysUserService")
 @Transactional(rollbackFor = Exception.class)
-public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> implements SysUserService, UserDetailsService {
+public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser>
+        implements SysUserService, UserDetailsService {
 
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -58,6 +69,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
 
     @Autowired
     private JavaMailSender mailSender;
+
+    @Autowired
+    private GameService gameService;
 
     private static final String EMAIL_QUEUE = "oj_battle_email";
 
@@ -75,7 +89,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
      */
     @Override
     public boolean checkLogin(String username, String rawPassword) {
-        //已经做了空异常处理，一定不为空
+        // 已经做了空异常处理，一定不为空
         LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(SysUser::getName, username);
         SysUser sysUser = baseMapper.selectOne(queryWrapper);
@@ -83,11 +97,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
             throw new MyException(MyErrorCodeEnum.EMAIL_EXIST_ERROR);
         }
         System.out.println("authUser:'" + sysUser);
-        //从数据库查出的用户对象
+        // 从数据库查出的用户对象
         String encodedPassword = sysUser.getPassword();
-        //和加密后的密码进行比配
+        // 和加密后的密码进行比配
         if (!bCryptPasswordEncoder.matches(rawPassword, encodedPassword)) {
-            //抛出密码错误异常
+            // 抛出密码错误异常
             System.out.println("checkLogin--------->密码不正确！");
             throw new MyException(MyErrorCodeEnum.LOGIN_ERROR);
         } else {
@@ -97,7 +111,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
 
     @Override
     public boolean register(Map<String, String> user) {
-        //检查邮箱是否已经被注册过,虽然之前已经检查过，避免并发出现
+        // 检查邮箱是否已经被注册过,虽然之前已经检查过，避免并发出现
         LambdaQueryWrapper<SysUser> lambdaQueryWrapper = new LambdaQueryWrapper<>();
 
         lambdaQueryWrapper.eq(SysUser::getEmail, user.get("email"));
@@ -106,14 +120,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
             throw new MyException(MyErrorCodeEnum.EMAIL_REG_ERROR);
         }
 
-        //检查用户名是否已经被注册过
+        // 检查用户名是否已经被注册过
         lambdaQueryWrapper.clear();
         lambdaQueryWrapper.eq(SysUser::getName, user.get("username"));
         SysUser sysUser1 = this.getOne(lambdaQueryWrapper);
         if (sysUser1 != null) {
             throw new MyException(MyErrorCodeEnum.USERNAME_ERROR);
         }
-        //检验验证码
+        // 检验验证码
         String key = VERIFY_CODE_KEY + user.get("email");
         System.out.println(("verification_code_" + "20172333112@m.scnu.edu.cn").equals(key));
         System.out.println(key);
@@ -124,20 +138,18 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
 
         if (StringUtil.isNullOrEmpty(verificationCode)
                 || !verificationCode.equals(user.get("verifyCode"))) {
-            //抛出验证码异常
+            // 抛出验证码异常
             throw new MyException(MyErrorCodeEnum.VERIFICATION_ERROR);
         }
 
-        //存入数据库
+        // 存入数据库
         SysUser sysUser3 = new SysUser();
         sysUser3.setEmail(user.get("email"));
         sysUser3.setPassword(bCryptPasswordEncoder.encode(user.get("password")));
         sysUser3.setRoleId("1");
-        sysUser3.setState(1);
         this.save(sysUser3);
         return true;
     }
-
 
     /**
      * 用户token校验用
@@ -148,7 +160,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        //根据用户名查询用户
+        // 根据用户名查询用户
         LambdaQueryWrapper<SysUser> userWrapper = new LambdaQueryWrapper<>();
         userWrapper.eq(SysUser::getName, username);
         SysUser sysUser = this.getOne(userWrapper);
@@ -156,7 +168,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
             System.out.println("checkLogin--------->账号不存在，请重新尝试！");
             throw new MyException(MyErrorCodeEnum.EMAIL_EXIST_ERROR);
         }
-        //赋予角色
+        // 赋予角色
         LambdaQueryWrapper<SysRole> roleWrapper = new LambdaQueryWrapper<>();
         roleWrapper.eq(SysRole::getId, sysUser.getRoleId());
         List<SysRole> roles = roleService.list(roleWrapper);
@@ -164,30 +176,35 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
         for (SysRole role : roles) {
             authorities.add(new SimpleGrantedAuthority(role.getName()));
         }
-        System.out.println("loadUserByUsername......user ===> " + sysUser);
-        return new AuthUser(sysUser.getId(), sysUser.getName(), sysUser.getPassword(), sysUser.getState(), sysUser.getRanking(), authorities);
+        return new AuthUser(
+                sysUser.getId(),
+                sysUser.getName(),
+                sysUser.getPassword(),
+                sysUser.getFlag(),
+                sysUser.getRanking(),
+                authorities);
     }
 
     @Override
     public void sendRegEmailProcedure(String email) {
-        //查询邮箱有没有被注册过
+        // 查询邮箱有没有被注册过
         LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(SysUser::getEmail, email);
         SysUser user = getOne(wrapper);
-        //邮箱已经被注册过，抛异常
+        // 邮箱已经被注册过，抛异常
         if (user != null) {
             throw new MyException(MyErrorCodeEnum.EMAIL_REG_ERROR);
         }
 
-        //生成随机六位验证码
+        // 生成随机六位验证码
         String verifyCode = RandomStringUtils.randomNumeric(6);
         System.out.println("verifyCode: " + verifyCode);
 
-        //存入redis,有效期15min
+        // 存入redis,有效期15min
         String key = VERIFY_CODE_KEY + email;
         stringRedisTemplate.opsForValue().set(key, verifyCode, 15, TimeUnit.MINUTES);
 
-        //发送到消息队列
+        // 发送到消息队列
         Map<String, String> map = new HashMap<>(2);
         map.put("email", email);
         map.put("verifyCode", verifyCode);
@@ -198,7 +215,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
     @RabbitListener(queues = EMAIL_QUEUE)
     @Override
     public void sendRegEmailConsumer(Map<String, String> map) {
-        //读取短信模板
+        // 读取短信模板
         System.out.println(SENDER);
         InputStream is = this.getClass().getResourceAsStream("/email_content.txt");
         final int bufferSize = 1024;
@@ -220,9 +237,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
         }
         String to = map.get("email");
         String verifyCode = map.get("verifyCode");
-        String content = out.toString()
-                .replace("DATE", new SimpleDateFormat("yyyy-MM-dd").format(new Date()))
-                .replace("VERIFYCODE", verifyCode);
+        String content =
+                out.toString()
+                        .replace("DATE", new SimpleDateFormat("yyyy-MM-dd").format(new Date()))
+                        .replace("VERIFYCODE", verifyCode);
         String title = "Oj Battle 验证码";
         System.out.println("读取");
         SimpleMailMessage message = new SimpleMailMessage();
@@ -233,5 +251,66 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
         message.setText(content);
         mailSender.send(message);
     }
+
+    @Override
+    public String uploadAvatar(MultipartFile file) throws Exception {
+        // 调用工具类上传
+        FastDFSFile fastDFSFile =
+                new FastDFSFile(
+                        file.getOriginalFilename(),
+                        file.getBytes(),
+                        // 获取文件扩展名
+                        StringUtils.getFilenameExtension(file.getOriginalFilename()),
+                        null,
+                        null);
+        String[] upload = FastDFSUtil.upload(fastDFSFile);
+        String url = FastDFSUtil.getTrackerInfo() + "/" + upload[0] + "/" + upload[1];
+        // 取出userid
+        AuthUser authUser =
+                (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = authUser.getUserId();
+        // 拼接访问地址 url = http://192.168.0.1:8080/group1/M00/00/00/wewaefawefawf.jpeg,
+        // ngnix和FastDFS端口一致的情况下可以直接拼接访问？？？为什么
+        baseMapper.updateAvatarById(userId, url);
+        return url;
+    }
+
+    @Override
+    public List<SysUser> listTopList() {
+        return baseMapper.listTopList();
+    }
+
+    @Override
+    public boolean updateById(SysUser entity) {
+        //密码加密
+        if (!StringUtil.isNullOrEmpty(entity.getPassword())) {
+            entity.setPassword(bCryptPasswordEncoder.encode(entity.getPassword()));
+        }
+        //改了名称
+        if (!StringUtil.isNullOrEmpty(entity.getName())) {
+            LambdaUpdateWrapper<Game> wrapper = new LambdaUpdateWrapper<>();
+            wrapper.set(Game::getPlayer1Username, entity.getName()).eq(Game::getPlayer1Id, entity.getId());
+            gameService.update(wrapper);
+            wrapper.clear();
+            wrapper.set(Game::getPlayer2Username, entity.getName()).eq(Game::getPlayer2Id, entity.getId());
+            gameService.update(wrapper);
+            wrapper.clear();
+            wrapper.set(Game::getWinnerUsername, entity.getName()).eq(Game::getWinnerId, entity.getId());
+            gameService.update(wrapper);
+        }
+        return super.updateById(entity);
+    }
+
+    /**
+     * 重写，防止查出密码等
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public SysUser getById(Serializable id) {
+        return baseMapper.getById(id);
+    }
+
 
 }

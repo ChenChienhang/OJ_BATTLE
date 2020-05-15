@@ -11,4 +11,5 @@ import com.team10.ojbattle.entity.Submission;
  */
 public interface SubmissionDao extends BaseMapper<Submission> {
 
+
 }

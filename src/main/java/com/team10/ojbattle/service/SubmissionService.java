@@ -1,4 +1,5 @@
 package com.team10.ojbattle.service;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.team10.ojbattle.entity.Submission;
 
@@ -10,4 +11,13 @@ import com.team10.ojbattle.entity.Submission;
  */
 public interface SubmissionService extends IService<Submission> {
 
+    /**
+     * 查询某用户某次对局全部提交记录
+     * @param gameId
+     * @param userId
+     * @param current
+     * @param size
+     * @return
+     */
+    IPage<Submission> listByGameIdAndUserId(Integer gameId, Integer userId, Integer current, Integer size);
 }

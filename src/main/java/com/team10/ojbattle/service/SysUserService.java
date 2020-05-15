@@ -1,9 +1,11 @@
 package com.team10.ojbattle.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.team10.ojbattle.entity.SysUser;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,5 +45,18 @@ public interface SysUserService extends IService<SysUser> {
      * @param map
      */
     void sendRegEmailConsumer(Map<String, String> map);
+
+    /**
+     * 上传头像
+     * @return
+     */
+     String uploadAvatar(MultipartFile file) throws Exception;
+
+    /**
+     * 获取ranking前十的用户，只包含部分信息，密码这些信息不会查出来
+     * @return
+     */
+     List<SysUser> listTopList();
+
 
 }

@@ -90,7 +90,7 @@ public class SysUserController {
      * @return 删除结果
      */
     @DeleteMapping
-    public R<Boolean> delete(@RequestParam("idList") List<Long> idList) {
+    public R<Boolean> delete(@RequestParam("idList") List<Integer> idList) {
         return R.ok(this.sysUserService.removeByIds(idList));
     }
 }
