@@ -23,7 +23,7 @@ public class AuthUser implements UserDetails {
 
     private String password;
 
-    private Integer state;
+    private Integer flag;
 
     private Integer ranking;
 
@@ -32,12 +32,12 @@ public class AuthUser implements UserDetails {
     public AuthUser() {
     }
 
-    public AuthUser(Long userId, String username, String password, Integer state, Integer ranking, List<? extends GrantedAuthority> authorities) {
+    public AuthUser(Long userId, String username, String password, Integer flag, Integer ranking, List<? extends GrantedAuthority> authorities) {
         this.userId = userId;
         this.username = username;
         this.password = password;
         this.ranking = ranking;
-        this.state = state;
+        this.flag = flag;
         this.authorities = authorities;
     }
 
@@ -86,7 +86,7 @@ public class AuthUser implements UserDetails {
                 "userId='" + userId + '\'' +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
-                ", state=" + state +
+                ", flag=" + flag +
                 ", authorities=" + authorities +
                 '}';
     }

@@ -1,4 +1,4 @@
-package com.team10.ojbattle.exception;
+package com.team10.ojbattle.common.exception;
 
 import com.baomidou.mybatisplus.extension.api.R;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -15,14 +15,21 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @ControllerAdvice
 public class BaseExceptionHandler {
 
+    @ExceptionHandler(MyException.class)
+    @ResponseBody
+    public R<String> myError(MyException e) {
+        e.printStackTrace();
+        //处理的是自定义异常
+        return R.failed(e.getErrorCode());
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public R<String> error(Exception e) {
         e.printStackTrace();
         //处理的是自定义异常
-        if (e instanceof MyException) {
-            return R.failed(((MyException) e).getErrorCode());
-        }
         return R.failed(e.getMessage());
     }
+
+
 }
