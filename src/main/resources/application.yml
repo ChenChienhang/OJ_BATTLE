@@ -4,9 +4,35 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://118.178.253.239:3306/oj_battle?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://localhost:3306/oj_battle?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8
     username: root
-    password: 123456
+    password: root
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      initial-size: 8
+      min-idle: 1
+      max-active: 20
+      max-wait: 60000
+      time-between-eviction-runsMillis: 60000
+      min-evictable-idle-timeMillis: 300000
+      validation-query: select 'x' FROM DUAL
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      pool-prepared-statements: true
+      max-open-prepared-statements: 20
+      max-pool-prepared-statement-per-connection-size: 20
+      filters: stat
+      connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+      use-global-data-source-stat: true
+
+  servlet:
+    multipart:
+      #文件大小
+      max-file-size: 2MB
+      #请求大小（含表单）
+      max-request-size: 2MB
+
 
   redis:
     host: 118.178.253.239
@@ -43,6 +69,11 @@ spring:
     address: 118.178.253.239:6379
 
 mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-value: -1
+      logic-not-delete-value: 0
+      logic-delete-field: flag
   configuration:
     #控制台打印
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
@@ -54,6 +85,7 @@ mybatis-plus:
     lazy-loading-enabled: true
     #演示加载
     multiple-result-sets-enabled: true
+  type-enums-package: com.team10.ojbattle.common.myenum
 
 
 
