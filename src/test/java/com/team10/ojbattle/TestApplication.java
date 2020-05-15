@@ -1,9 +1,11 @@
 package com.team10.ojbattle;
 
 
-import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.team10.ojbattle.component.JwtTokenUtil;
+import com.team10.ojbattle.entity.Game;
 import com.team10.ojbattle.entity.SysUser;
+import com.team10.ojbattle.service.GameService;
 import com.team10.ojbattle.service.SysUserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,6 +46,9 @@ public class TestApplication {
     @Autowired
     SysUserService sysUserService;
 
+    @Autowired
+    GameService gameService;
+
 
     @Autowired
     private JavaMailSender mailSender;
@@ -70,7 +75,7 @@ public class TestApplication {
 
             @Override
             public String getUsername() {
-                return "123456";
+                return "陈发财";
             }
 
             @Override
@@ -93,11 +98,11 @@ public class TestApplication {
                 return false;
             }
         }));
-        return;
     }
 
     @Test
     public void rabbitTest() throws IOException {
+
 //        String to = "20172333112@m.scnu.edu.cn";
 //        String verifyCode = "verifyCode";
 //        String content = "123";
@@ -111,10 +116,11 @@ public class TestApplication {
 //        message.setSentDate(new Date());
 //        message.setText(content);
 //        mailSender.send(message);
-//        String s = stringRedisTemplate.opsForValue().get("verification_code_20172333112@m.scnu.edu.cn");
-//        System.out.println(s);
-        SysUser user = new SysUser();
-        sysUserService.save(user);
+//        stringRedisTemplate.opsForZSet().add("BATTLE_MATCH_POOL", "456", 2);
+//        Long rank = stringRedisTemplate.opsForZSet().rank("BATTLE_MATCH_POOL", "456");
+//        System.out.println(rank);
+//        SysUser user = new SysUser();
+//        sysUserService.save(user);
 
     }
 

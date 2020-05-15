@@ -2,8 +2,8 @@ package com.team10.ojbattle.configuration.auth;
 
 
 import com.team10.ojbattle.entity.auth.AuthUser;
-import com.team10.ojbattle.exception.MyErrorCodeEnum;
-import com.team10.ojbattle.exception.MyException;
+import com.team10.ojbattle.common.exception.MyErrorCodeEnum;
+import com.team10.ojbattle.common.exception.MyException;
 import com.team10.ojbattle.component.JwtTokenUtil;
 import io.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;

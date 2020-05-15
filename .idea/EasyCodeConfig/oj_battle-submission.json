@@ -23,7 +23,7 @@
     "custom" : false,
     "ext" : { }
   }, {
-    "name" : "queetionTitle",
+    "name" : "questionTitle",
     "comment" : null,
     "type" : null,
     "shortType" : null,
@@ -44,14 +44,28 @@
     "custom" : false,
     "ext" : { }
   }, {
-    "name" : "isCorrect",
+    "name" : "lanauage",
     "comment" : null,
     "type" : null,
     "shortType" : null,
     "custom" : false,
     "ext" : { }
   }, {
-    "name" : "result",
+    "name" : "memory",
+    "comment" : null,
+    "type" : null,
+    "shortType" : null,
+    "custom" : false,
+    "ext" : { }
+  }, {
+    "name" : "time",
+    "comment" : null,
+    "type" : null,
+    "shortType" : null,
+    "custom" : false,
+    "ext" : { }
+  }, {
+    "name" : "status",
     "comment" : null,
     "type" : null,
     "shortType" : null,

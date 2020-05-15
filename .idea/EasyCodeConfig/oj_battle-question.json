@@ -16,7 +16,7 @@
     "custom" : false,
     "ext" : { }
   }, {
-    "name" : "summary",
+    "name" : "description",
     "comment" : null,
     "type" : null,
     "shortType" : null,
@@ -30,7 +30,28 @@
     "custom" : false,
     "ext" : { }
   }, {
-    "name" : "answer",
+    "name" : "input",
+    "comment" : null,
+    "type" : null,
+    "shortType" : null,
+    "custom" : false,
+    "ext" : { }
+  }, {
+    "name" : "output",
+    "comment" : null,
+    "type" : null,
+    "shortType" : null,
+    "custom" : false,
+    "ext" : { }
+  }, {
+    "name" : "submissionCount",
+    "comment" : null,
+    "type" : null,
+    "shortType" : null,
+    "custom" : false,
+    "ext" : { }
+  }, {
+    "name" : "acCount",
     "comment" : null,
     "type" : null,
     "shortType" : null,

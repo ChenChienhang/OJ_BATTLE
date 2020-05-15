@@ -1,10 +1,9 @@
 package com.team10.ojbattle.entity;
-import java.util.Date;
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
+import java.time.LocalDateTime;
+
+import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -19,7 +18,7 @@ import lombok.NoArgsConstructor;
 @SuppressWarnings("serial")
 public class SysUser extends Model<SysUser> {
 
-    @TableId(type = IdType.ASSIGN_ID)
+    @TableId(type = IdType.AUTO)
    /**
     * 用户id
     */
@@ -67,21 +66,22 @@ public class SysUser extends Model<SysUser> {
     */
     private String roleId;
 
-    
    /**
-    * 用户状态，1：正常，0：注销
+    * 用户状态，-1:删除（注销） 0：正常
     */
-    private Integer state;
+    private Integer flag;
 
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @TableField(fill = FieldFill.INSERT)
    /**
     * 创建时间（这里可视为注册时间）
     */
-    private Date createTime;
+    private LocalDateTime createTime;
 
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @TableField(fill = FieldFill.INSERT_UPDATE)
    /**
     * 更新时间
     */
-    private Date updateTime;
+    private LocalDateTime updateTime;
 }

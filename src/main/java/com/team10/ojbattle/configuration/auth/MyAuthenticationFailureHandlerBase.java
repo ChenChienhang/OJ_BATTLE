@@ -3,7 +3,6 @@ package com.team10.ojbattle.configuration.auth;
 
 import com.baomidou.mybatisplus.extension.api.IErrorCode;
 import com.baomidou.mybatisplus.extension.api.R;
-import com.team10.ojbattle.exception.MyErrorCodeEnum;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;

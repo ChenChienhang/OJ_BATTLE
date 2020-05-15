@@ -7,15 +7,18 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.2.5.RELEASE</version>
+        <version>2.2.7.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.team10</groupId>
-    <artifactId>OjBattle</artifactId>
+    <artifactId>ojbattle</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
         <java.version>1.8</java.version>
+
+        <!--docker镜像的前缀-->
+        <docker.image.prefix>jankins</docker.image.prefix>
     </properties>
 
     <dependencies>
@@ -103,6 +106,13 @@
             <scope>test</scope>
         </dependency>
 
+        <!--druid连接池 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-starter</artifactId>
+            <version>1.1.22</version>
+        </dependency>
+
         <!--邮件系统-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -116,12 +126,25 @@
             <version>3.10</version>
         </dependency>
 
+        <!--文件服务器-->
+        <dependency>
+            <groupId>net.oschina.zcx7878</groupId>
+            <artifactId>fastdfs-client-java</artifactId>
+            <version>1.27.0.0</version>
+        </dependency>
+
         <!--redis分布式锁组件-->
         <dependency>
             <groupId>cn.keking</groupId>
             <artifactId>spring-boot-klock-starter</artifactId>
             <version>1.4-RELEASE</version>
         </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.66</version>
+        </dependency>
+
     </dependencies>
 
 
@@ -137,6 +160,28 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>1.0.0</version>
+
+                <configuration>
+                    <!--远程Docker的地址-->
+                    <dockerHost>http://39.97.115.210:2375</dockerHost>
+                    <!--镜像名称，前缀/项目名-->
+                    <imageName>${docker.image.prefix}/${project.artifactId}</imageName>
+<!--                    <imageName>ojbattle</imageName>-->
+                    <dockerDirectory>src/main/docker</dockerDirectory>
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <directory>${project.build.directory}</directory>
+                            <include>${project.build.finalName}.jar</include>
+                        </resource>
+                    </resources>
                 </configuration>
             </plugin>
         </plugins>

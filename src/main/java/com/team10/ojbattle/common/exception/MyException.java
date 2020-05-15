@@ -1,4 +1,4 @@
-package com.team10.ojbattle.exception;
+package com.team10.ojbattle.common.exception;
 
 import com.baomidou.mybatisplus.extension.api.IErrorCode;
 import lombok.Data;
