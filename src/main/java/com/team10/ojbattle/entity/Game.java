@@ -1,11 +1,14 @@
 package com.team10.ojbattle.entity;
-import java.util.Date;
-
+import java.time.LocalDateTime;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.team10.ojbattle.common.converter.TypeEnumConverter;
+import com.team10.ojbattle.common.enums.TypeEnum;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,94 +16,92 @@ import lombok.NoArgsConstructor;
  * (Game)表实体类
  *
  * @author 陈健航
- * @since 2020-04-17 12:06:19
+ * @since 2020-05-15 22:08:38
  */
 @Data
 @NoArgsConstructor
-@SuppressWarnings("serial")
 public class Game extends Model<Game> {
 
-    @TableId(type = IdType.ASSIGN_ID)
+
    /**
     * 对局id
     */
+    @TableId(type = IdType.AUTO)
     private Long id;
 
-    
+
    /**
     * 用户1
     */
     private Long player1Id;
 
-    
+
    /**
     * 用户1昵称
     */
-    private String player1Username;
+   private String player1Username;
 
-    
+
    /**
     * 用户2
     */
     private Long player2Id;
 
-    
+
    /**
     * 用户2昵称
     */
     private String player2Username;
 
-    
+
    /**
     * 题目id
     */
     private Long questionId;
 
-    
+
    /**
     * 题目标题
     */
     private String questionTitle;
 
-    
+
    /**
     * 胜利用户id
     */
     private Long winnerId;
 
-    
+
    /**
     * 胜利用户昵称
     */
     private String winnerUsername;
 
-    
+
    /**
     * 1:对局模式，2：练习模式（方便扩展）
     */
-    private Integer type;
+    @JsonDeserialize(converter = TypeEnumConverter.class)
+    private TypeEnum type;
 
-    
+
    /**
     * 用户1结束时间（第一次正确提交）
     */
-    private Date player1EndTime;
+    private LocalDateTime player1EndTime;
 
-    
+
    /**
     * 用户2结束时间（第一次正确提交）
     */
-    private Date player2EndTime;
+    private LocalDateTime player2EndTime;
 
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @TableField(fill = FieldFill.INSERT)
-   /**
-    * 创建时间
-    */
-    private Date createTime;
+    private LocalDateTime createTime;
 
+
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @TableField(fill = FieldFill.INSERT_UPDATE)
-   /**
-    * 更新时间
-    */
-    private Date updateTime;
+    private LocalDateTime updateTime;
 }

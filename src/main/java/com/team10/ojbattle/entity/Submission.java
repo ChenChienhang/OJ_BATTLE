@@ -1,10 +1,15 @@
 package com.team10.ojbattle.entity;
-import java.util.Date;
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
+import java.time.LocalDateTime;
+
+import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.team10.ojbattle.common.converter.LanguageEnumConverter;
+import com.team10.ojbattle.common.converter.StatusEnumConverter;
+import com.team10.ojbattle.common.converter.TypeEnumConverter;
+import com.team10.ojbattle.common.enums.LanguageEnum;
+import com.team10.ojbattle.common.enums.StatusEnum;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,17 +17,17 @@ import lombok.NoArgsConstructor;
  * (Submission)表实体类
  *
  * @author 陈健航
- * @since 2020-04-17 12:07:27
+ * @since 2020-05-15 22:12:01
  */
 @Data
 @NoArgsConstructor
-@SuppressWarnings("serial")
 public class Submission extends Model<Submission> {
 
-    @TableId(type = IdType.ASSIGN_ID)
+
    /**
     * id
     */
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     
@@ -41,7 +46,7 @@ public class Submission extends Model<Submission> {
    /**
     * 题目标题
     */
-    private Long queetionTitle;
+    private String questionTitle;
 
     
    /**
@@ -57,25 +62,43 @@ public class Submission extends Model<Submission> {
 
     
    /**
-    * 0：未通过，1：通过
+    * 编写语言
     */
-    private Integer isCorrect;
+    @JsonDeserialize(converter = LanguageEnumConverter.class)
+    private LanguageEnum language;
 
     
    /**
-    * 未通过的原因
+    * 运行内存
     */
-    private String result;
+    private String memory;
 
-    @TableField(fill = FieldFill.INSERT)
+    
+   /**
+    * 运行时间
+    */
+    private String time;
+
+    
+   /**
+    * 提交结果，例如成功，编译错误等
+    */
+    @JsonDeserialize(converter = StatusEnumConverter.class)
+    private StatusEnum status;
+
+
    /**
     * 创建时间（提交时间）
     */
-    private Date createTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createTime;
 
-    @TableField(fill = FieldFill.INSERT_UPDATE)
+
    /**
     * 修改时间
     */
-    private Date updateTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updateTime;
 }

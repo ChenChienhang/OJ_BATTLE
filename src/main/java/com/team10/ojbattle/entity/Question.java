@@ -1,11 +1,11 @@
 package com.team10.ojbattle.entity;
-import java.util.Date;
-
+import java.time.LocalDateTime;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,17 +13,17 @@ import lombok.NoArgsConstructor;
  * (Question)表实体类
  *
  * @author 陈健航
- * @since 2020-04-17 12:06:25
+ * @since 2020-05-15 22:10:05
  */
 @Data
 @NoArgsConstructor
-@SuppressWarnings("serial")
 public class Question extends Model<Question> {
 
-    @TableId(type = IdType.ASSIGN_ID)
+
    /**
     * 题目id
     */
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     
@@ -36,7 +36,7 @@ public class Question extends Model<Question> {
    /**
     * 题目描述
     */
-    private String summary;
+    private String description;
 
     
    /**
@@ -46,9 +46,27 @@ public class Question extends Model<Question> {
 
     
    /**
-    * 题目的正确输出
+    * 示例输入
     */
-    private String answer;
+    private String input;
+
+    
+   /**
+    * 示例输出
+    */
+    private String output;
+
+    
+   /**
+    * 提交的总次数
+    */
+    private Integer submissionCount;
+
+    
+   /**
+    * 通过的次数
+    */
+    private Integer acCount;
 
     
    /**
@@ -56,15 +74,19 @@ public class Question extends Model<Question> {
     */
     private Integer difficulty;
 
-    @TableField(fill = FieldFill.INSERT)
+
    /**
     * 创建时间
     */
-    private Date createTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createTime;
 
-    @TableField(fill = FieldFill.INSERT_UPDATE)
+
    /**
     * 更新时间
     */
-    private Date updateTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updateTime;
 }
