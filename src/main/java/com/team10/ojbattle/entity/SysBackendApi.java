@@ -5,52 +5,69 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 /**
- * (SysRole)表实体类
+ * (SysBackendApi)表实体类
  *
  * @author 陈健航
- * @since 2020-04-17 12:07:57
+ * @since 2020-05-18 13:51:27
  */
 @Data
 @NoArgsConstructor
-@SuppressWarnings("serial")
-public class SysRole extends Model<SysRole> {
+public class SysBackendApi extends Model<SysBackendApi> {
 
+
+    /**
+     * 主键
+     */
     @TableId(type = IdType.INPUT)
-   /**
-    * id
-    */
     private Long id;
 
-    
-   /**
-    * 角色名
-    */
+
+    /**
+     * API名称
+     */
     private String name;
 
-    
-   /**
-    * 描述
-    */
+
+    /**
+     * API请求地址
+     */
+    private String url;
+
+
+    /**
+     * API请求方式：GET、POST、PUT、DELETE
+     */
+    private String method;
+
+
+    /**
+     * 父ID
+     */
+    private Long pid;
+
+
+    /**
+     * 描述
+     */
     private String description;
 
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+
+    /**
+     * 创建时间
+     */
     @TableField(fill = FieldFill.INSERT)
-   /**
-    * 创建时间
-    */
     private LocalDateTime createTime;
 
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+
+    /**
+     * 更新时间
+     */
     @TableField(fill = FieldFill.INSERT_UPDATE)
-   /**
-    * 更新时间
-    */
     private LocalDateTime updateTime;
 }

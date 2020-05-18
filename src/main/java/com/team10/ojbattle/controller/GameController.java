@@ -1,12 +1,10 @@
 package com.team10.ojbattle.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.api.R;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.team10.ojbattle.entity.Game;
 import com.team10.ojbattle.service.GameService;
-
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.api.R;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,17 +32,17 @@ public class GameController {
     public R<List<Game>> selectAll() {
         return R.ok(this.gameService.list());
     }
-    
+
     /**
      * 分页查询所有数据
-     * 
+     *
      * @param current 查询的页数
-     * @param size 页面大小
+     * @param size    页面大小
      * @return 分页数据
      */
     @GetMapping("/page")
     public R<IPage<Game>> selectPage(@RequestParam(defaultValue = "1", value = "pageNum") Integer current, @RequestParam(defaultValue = "10", value = "pageSize") Integer size) {
-        return R.ok(this.gameService.page(new Page<>(current, size), null));
+        return R.ok(this.gameService.page(new Page<>(current, size)));
     }
     
     /**

@@ -89,18 +89,22 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
         http.csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().headers().cacheControl();
 
+
         //请求权限配置
         //放行注册API请求，其它任何请求都必须经过身份验证.
         http.authorizeRequests()
                 //所有注册和登录的请求都可以通过
-                .antMatchers(HttpMethod.POST,"/user/register").permitAll()
-                .antMatchers(HttpMethod.POST,"/user/login").permitAll()
-                .antMatchers(HttpMethod.GET, "/user/verifycode/**").permitAll()
-                //有ROLE_USER可以访问所有路径
-                .antMatchers("/**").hasAuthority("ROLE_USER");
+                .antMatchers(HttpMethod.POST, "/user/register").permitAll()
+                .antMatchers(HttpMethod.POST, "/login").permitAll()
+                .antMatchers(HttpMethod.GET, "user/reg_email").permitAll()
+                .antMatchers(HttpMethod.PUT, "user/reset").permitAll()
+                .antMatchers(HttpMethod.POST, "user/upload_avatar").permitAll()
+                .antMatchers(HttpMethod.POST, "user/top_list").permitAll()
+                .antMatchers(HttpMethod.GET, "user/find_email").permitAll()
+                .anyRequest().access("@dynamicPermission.checkPermission(request,authentication)");
 
         //拦截账号、密码。覆盖 UsernamePasswordAuthenticationFilter过滤器
-        http.addFilterAt(myUsernamePasswordAuthenticationFilter() , UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAt(myUsernamePasswordAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         //拦截token，并检测。在 UsernamePasswordAuthenticationFilter 之前添加 JwtAuthenticationTokenFilter
         http.addFilterBefore(myOncePerRequestFilter, UsernamePasswordAuthenticationFilter.class);

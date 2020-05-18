@@ -26,7 +26,7 @@ import java.util.Map;
 public class GameServiceImpl extends ServiceImpl<GameDao, Game> implements GameService {
 
     @Override
-    public IPage<Game> listPageByUserId(String userId, Integer current, Integer size) {
+    public IPage<Game> listPageByUserId(Integer userId, Integer current, Integer size) {
         LambdaQueryWrapper<Game> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Game::getPlayer1Id, userId).or().eq(Game::getPlayer2Id, userId);
         return page(new Page<>(current, size), wrapper);

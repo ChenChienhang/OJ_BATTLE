@@ -1,6 +1,6 @@
 package com.team10.ojbattle.controller.extend;
 
-import com.team10.ojbattle.controller.QuestionController;
+import com.team10.ojbattle.controller.ProblemController;
 
 import org.springframework.web.bind.annotation.*;
 
@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.*;
  * @since 2020-04-04 23:50:21
  */
 @RestController
-@RequestMapping("/question")
-public class QuestionExtendController extends QuestionController {
+@RequestMapping("/problem")
+public class ProblemExtendController extends ProblemController {
   
    
 }

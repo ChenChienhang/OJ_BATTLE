@@ -1,28 +1,25 @@
 package com.team10.ojbattle;
 
 
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.alibaba.excel.EasyExcel;
+import com.team10.ojbattle.common.utils.QuestionDataListener;
+import com.team10.ojbattle.common.utils.SysBackendApiDataListener;
+import com.team10.ojbattle.common.utils.SysRoleBackendApiDataListener;
+import com.team10.ojbattle.common.utils.SysUserDataListener;
 import com.team10.ojbattle.component.JwtTokenUtil;
-import com.team10.ojbattle.entity.Game;
+import com.team10.ojbattle.dao.SysUserDao;
+import com.team10.ojbattle.entity.Problem;
+import com.team10.ojbattle.entity.SysBackendApi;
+import com.team10.ojbattle.entity.SysRoleBackendApi;
 import com.team10.ojbattle.entity.SysUser;
-import com.team10.ojbattle.service.GameService;
-import com.team10.ojbattle.service.SysUserService;
+import com.team10.ojbattle.service.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.io.*;
-import java.net.UnknownServiceException;
-import java.util.Collection;
 
 /**
  * @author: 陈健航
@@ -41,89 +38,65 @@ public class TestApplication {
     JwtTokenUtil jwtTokenUtil;
 
     @Autowired
-    RabbitTemplate rabbitTemplate;
+    SysUserService sysUserService;
 
     @Autowired
-    SysUserService sysUserService;
+    ProblemService problemService;
 
     @Autowired
     GameService gameService;
 
+    @Autowired
+    StringRedisTemplate stringRedisTemplate;
 
     @Autowired
-    private JavaMailSender mailSender;
-
-    @Value("${spring.mail.username}")
-    private String sender;
+    SysBackendApiService sysBackendApiService;
 
     @Autowired
-    private StringRedisTemplate stringRedisTemplate;
+    SysRoleBackendApiService sysRoleBackendApiService;
+
+    @Autowired
+    SysUserDao sysUserDao;
 
     @Test
-    public void getBC(){
+    public void getBC() {
         System.out.println(bCryptPasswordEncoder.encode("123456"));
-        System.out.println(jwtTokenUtil.generateToken(new UserDetails() {
-            @Override
-            public Collection<? extends GrantedAuthority> getAuthorities() {
-                return null;
-            }
-
-            @Override
-            public String getPassword() {
-                return null;
-            }
-
-            @Override
-            public String getUsername() {
-                return "陈发财";
-            }
-
-            @Override
-            public boolean isAccountNonExpired() {
-                return false;
-            }
-
-            @Override
-            public boolean isAccountNonLocked() {
-                return false;
-            }
-
-            @Override
-            public boolean isCredentialsNonExpired() {
-                return false;
-            }
-
-            @Override
-            public boolean isEnabled() {
-                return false;
-            }
-        }));
     }
 
     @Test
-    public void rabbitTest() throws IOException {
-
-//        String to = "20172333112@m.scnu.edu.cn";
-//        String verifyCode = "verifyCode";
-//        String content = "123";
-//        String title = "Oj Battle 验证码";
-//        System.out.println("读取" );
-//
-//        SimpleMailMessage message = new SimpleMailMessage();
-//        message.setTo(to);
-//        message.setFrom("853804445@qq.com");
-//        message.setSubject(title);
-//        message.setSentDate(new Date());
-//        message.setText(content);
-//        mailSender.send(message);
-//        stringRedisTemplate.opsForZSet().add("BATTLE_MATCH_POOL", "456", 2);
-//        Long rank = stringRedisTemplate.opsForZSet().rank("BATTLE_MATCH_POOL", "456");
-//        System.out.println(rank);
-//        SysUser user = new SysUser();
-//        sysUserService.save(user);
-
+    public void excelToQuestion() {
+        //根据本机xlsx的绝对路径修改
+        String fileName = "C:\\Users\\CJH\\IdeaProjects\\oj-battle\\src\\main\\resources\\demo.xlsx";
+        System.out.println(fileName);
+        EasyExcel.read(fileName, Problem.class, new QuestionDataListener(problemService)).sheet(0).doRead();
     }
 
+    @Test
+    public void excelToUser() {
+        //根据本机xlsx的绝对路径修改
+        String fileName = "C:\\Users\\CJH\\IdeaProjects\\oj-battle\\src\\main\\resources\\demo.xlsx";
+        System.out.println(fileName);
+        EasyExcel.read(fileName, SysUser.class, new SysUserDataListener(sysUserService)).sheet(2).doRead();
+    }
+
+    /**
+     * 这个有问题
+     */
+    @Test
+    public void excelToGame() {
+        System.out.println(sysUserDao.getByEmail("888888@qq.com"));
+        String fileName = "C:\\Users\\CJH\\IdeaProjects\\oj-battle\\src\\main\\resources\\demo.xlsx";
+        System.out.println(fileName);
+        EasyExcel.read(fileName, SysRoleBackendApi.class, new SysRoleBackendApiDataListener(sysRoleBackendApiService)).sheet(3).doRead();
+        EasyExcel.read(fileName, SysBackendApi.class, new SysBackendApiDataListener(sysBackendApiService)).sheet(2).doRead();
+        //根据本机xlsx的绝对路径修改
+//        String fileName = "C:\\Users\\CJH\\IdeaProjects\\oj-battle\\src\\main\\resources\\demo.xlsx";
+//        EasyExcel.read(fileName, Game.class, new GameDataListener(gameService)).sheet(3).doRead();
+//        AntPathMatcher matcher = new AntPathMatcher();"^[0-9]*$"
+//        Pattern pattern = Pattern.compile("/game\\?");
+//        System.out.println(pattern.matcher("/game?pageSize=2&userId=2").find());
+//        System.out.println(pattern.matcher("game/find").find());
+    }
 
 
 }

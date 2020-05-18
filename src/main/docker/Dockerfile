@@ -1,4 +1,7 @@
 FROM java:8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
 VOLUME /tmp
-ADD ojbattle-1.0-SNAPSHOT.jar /test.jar
+ADD oj-battle-1.0-SNAPSHOT.jar /test.jar
 ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/test.jar"]

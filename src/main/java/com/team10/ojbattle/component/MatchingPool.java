@@ -2,12 +2,12 @@ package com.team10.ojbattle.component;
 
 import com.team10.ojbattle.common.enums.TypeEnum;
 import com.team10.ojbattle.entity.Game;
-import com.team10.ojbattle.entity.Question;
+import com.team10.ojbattle.entity.Problem;
 import com.team10.ojbattle.entity.auth.AuthUser;
 import com.team10.ojbattle.common.exception.MyErrorCodeEnum;
 import com.team10.ojbattle.common.exception.MyException;
 import com.team10.ojbattle.service.GameService;
-import com.team10.ojbattle.service.QuestionService;
+import com.team10.ojbattle.service.ProblemService;
 import io.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.klock.annotation.Klock;
@@ -31,7 +31,7 @@ public class MatchingPool {
     StringRedisTemplate stringRedisTemplate;
 
     @Autowired
-    private QuestionService questionService;
+    private ProblemService problemService;
 
     @Autowired
     private GameService gameService;
@@ -61,10 +61,6 @@ public class MatchingPool {
      */
     private static final String IS_MATCH_KEY = "BATTLE_IS_MATCH";
 
-    /**
-     * 表示自己还在对局的key,后面加自己的id
-     */
-    private static final String ON_GAME_KEY = "BATTLE_ON_GAME";
 
     /**
      * 返回值：作为被匹配方接受到了匹配
@@ -91,15 +87,6 @@ public class MatchingPool {
      */
     public static final String RET_MATCH_ERROR = "RET_MATCH_ERROR";
 
-    /**
-     * MAP_KEY_OPPONENT_ID
-     */
-    private static final String MAP_KEY_OPPONENT_ID = "opponentId";
-
-    /**
-     * MAP_KEY_OPPONENT_NAME
-     */
-    private static final String MAP_KEY_OPPONENT_NAME = "opponentName";
 
     /**
      * 加入匹配池，需要加锁
@@ -202,8 +189,8 @@ public class MatchingPool {
         String[] temp = opponentData.split(SEPARATOR);
         String opponentId = temp[0];
         String opponentName = temp[1];
-        res.put(MAP_KEY_OPPONENT_ID, opponentId);
-        res.put(MAP_KEY_OPPONENT_NAME, opponentName);
+        res.put("opponentId", opponentId);
+        res.put("opponentName", opponentName);
         res.put("res", RET_MATCH_OTHER);
         //利用redis通知对方我已经匹配到你了，请对方创建对局，然后我通过查询redis来confim,当对方确认后，value变成gameId，
         //如果该值过期，表示对方没有确认，重新进入匹配,存入的结构是
@@ -227,9 +214,10 @@ public class MatchingPool {
         game.setPlayer1Id(userId);
         game.setPlayer1Username(username);
         //随机取出一条题目
-        Question question = questionService.selectOneByRandom();
-        game.setQuestionTitle(question.getTitle());
-        game.setQuestionId(question.getId());
+        Problem problem = problemService.selectOneByRandom();
+        game.setProblemTitle(problem.getTitle());
+        game.setProblemId(problem.getId());
+        game.setProblemDifficulty(problem.getDifficulty());
         gameService.save(game);
 
         //通知对方我已经确认了对局，并且开启了对局
@@ -249,17 +237,20 @@ public class MatchingPool {
         return game.getId();
     }
 
+
     /**
-     * @param map
-     * @return gameId对局id/RET_KEEP_CONFIRM轮询确认/RET_MATCH_ERROR匹配错误
+     * gameId对局id/RET_KEEP_CONFIRM轮询确认/RET_MATCH_ERROR匹配错误
+     * @param opponentId 对手id
+     * @param opponentName 对手名称
+     * @return
      */
-    public String thirdShakeHand(Map<String, String> map) {
+    public String thirdShakeHand(String opponentId, String opponentName) {
         AuthUser authUser = (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long userId = authUser.getUserId();
         String username = authUser.getUsername();
         String userData = userId + SEPARATOR + username;
 
-        String opponentData = map.get(MAP_KEY_OPPONENT_ID) + SEPARATOR + map.get(MAP_KEY_OPPONENT_NAME);
+        String opponentData = opponentId + SEPARATOR + opponentName;
         String gameId = stringRedisTemplate.opsForValue().get(IS_MATCH_KEY + SEPARATOR + opponentData);
         //key过期，可能对方已经退出了匹配，没有进行确认，此时应该重新加入匹配池。
         if (StringUtil.isNullOrEmpty(gameId)) {

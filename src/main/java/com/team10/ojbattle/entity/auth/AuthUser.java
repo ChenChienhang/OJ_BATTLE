@@ -1,10 +1,14 @@
 package com.team10.ojbattle.entity.auth;
 
+import com.team10.ojbattle.entity.SysBackendApi;
+import com.team10.ojbattle.entity.SysRole;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,18 +31,34 @@ public class AuthUser implements UserDetails {
 
     private Integer ranking;
 
-    private List<? extends GrantedAuthority> authorities;
+    private String avatar;
+
+    /**
+     * 凭证
+     */
+    private String email;
+
+    private List<SysBackendApi> sysBackendApiList;
+
+    private List<SimpleGrantedAuthority> authorities;
 
     public AuthUser() {
     }
 
-    public AuthUser(Long userId, String username, String password, Integer flag, Integer ranking, List<? extends GrantedAuthority> authorities) {
+    public AuthUser(Long userId, String username, String password, Integer flag, Integer ranking, String avatar, String email, List<SysBackendApi> sysBackendApiList, List<SysRole> authorities) {
         this.userId = userId;
         this.username = username;
         this.password = password;
-        this.ranking = ranking;
         this.flag = flag;
-        this.authorities = authorities;
+        this.ranking = ranking;
+        this.avatar = avatar;
+        this.sysBackendApiList = sysBackendApiList;
+        this.email = email;
+        this.authorities = new ArrayList<>();
+        for (SysRole role :
+                authorities) {
+            this.authorities.add(new SimpleGrantedAuthority(role.getName()));
+        }
     }
 
     @Override
@@ -56,10 +76,6 @@ public class AuthUser implements UserDetails {
         return username;
     }
 
-    /**
-     * 账户是否未过期
-     * @return
-     */
     @Override
     public boolean isAccountNonExpired() {
         return true;

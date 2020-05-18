@@ -5,13 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
+        <!-- lookup parent from repository -->
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.2.7.RELEASE</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <version>2.3.0.RELEASE</version>
+        <relativePath/>
     </parent>
     <groupId>com.team10</groupId>
-    <artifactId>ojbattle</artifactId>
+    <artifactId>oj-battle</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -73,7 +74,7 @@
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>3.3.1</version>
+            <version>3.3.1.tmp</version>
         </dependency>
         <!--rabbitmq-->
         <dependency>
@@ -139,6 +140,14 @@
             <artifactId>spring-boot-klock-starter</artifactId>
             <version>1.4-RELEASE</version>
         </dependency>
+
+        <!--        easyexcel-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>easyexcel</artifactId>
+            <version>2.2.3</version>
+        </dependency>
+
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
@@ -153,6 +162,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -173,7 +183,6 @@
                     <dockerHost>http://39.97.115.210:2375</dockerHost>
                     <!--镜像名称，前缀/项目名-->
                     <imageName>${docker.image.prefix}/${project.artifactId}</imageName>
-<!--                    <imageName>ojbattle</imageName>-->
                     <dockerDirectory>src/main/docker</dockerDirectory>
                     <resources>
                         <resource>

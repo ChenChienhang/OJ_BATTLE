@@ -1,9 +1,10 @@
 package com.team10.ojbattle.entity;
+
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,16 +20,16 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @SuppressWarnings("serial")
-public class SysUserRole extends Model<SysUserRole> {
+public class SysRoleUser extends Model<SysRoleUser> {
 
 
     /**
      * id
      */
-     @TableId(type = IdType.AUTO)
-     private Long id;
+    @TableId(type = IdType.AUTO)
+    private Long id;
 
-    
+
     /**
      * 角色id
      */

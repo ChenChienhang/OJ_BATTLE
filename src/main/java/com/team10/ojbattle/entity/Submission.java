@@ -5,11 +5,11 @@ import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.team10.ojbattle.common.converter.LanguageEnumConverter;
-import com.team10.ojbattle.common.converter.StatusEnumConverter;
-import com.team10.ojbattle.common.converter.TypeEnumConverter;
+import com.team10.ojbattle.common.enums.converter.LanguageEnumConverter;
+import com.team10.ojbattle.common.enums.converter.StatusEnumConverter;
 import com.team10.ojbattle.common.enums.LanguageEnum;
 import com.team10.ojbattle.common.enums.StatusEnum;
+import com.team10.ojbattle.common.enums.converter.TypeEnumConverter;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -40,13 +40,13 @@ public class Submission extends Model<Submission> {
    /**
     * 题目id
     */
-    private Long questionId;
+    private Long problemId;
 
     
    /**
     * 题目标题
     */
-    private String questionTitle;
+    private String problemTitle;
 
     
    /**
@@ -58,7 +58,7 @@ public class Submission extends Model<Submission> {
    /**
     * 提交代码
     */
-    private String code;
+    private String src;
 
     
    /**
@@ -71,14 +71,18 @@ public class Submission extends Model<Submission> {
    /**
     * 运行内存
     */
-    private String memory;
+    private Long memory;
 
     
    /**
     * 运行时间
     */
-    private String time;
+    private Long time;
 
+    /**
+     * 执行结果布尔变量
+     */
+    private Integer result;
     
    /**
     * 提交结果，例如成功，编译错误等

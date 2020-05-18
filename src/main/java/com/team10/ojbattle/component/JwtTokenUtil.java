@@ -1,9 +1,9 @@
 package com.team10.ojbattle.component;
 
+import com.team10.ojbattle.entity.auth.AuthUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -27,34 +27,34 @@ public class JwtTokenUtil {
     private final static long EXPIRATION_TIME = 3600000L * 24 * 7;
 
     /**
-     * 生成令牌
+     * 生成令牌,凭证是邮箱
      *
      * @param userDetails 用户
      * @return 令牌
      */
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(AuthUser userDetails) {
         Map<String, Object> claims = new HashMap<>(2);
-        claims.put(Claims.SUBJECT, userDetails.getUsername());
+        claims.put(Claims.SUBJECT, userDetails.getEmail());
         claims.put(Claims.ISSUED_AT, new Date());
         return generateToken(claims);
     }
 
     /**
-     * 从令牌中获取用户名
+     * 从令牌中获取邮箱
      *
      * @param token 令牌
      * @return 用户名
      */
-    public String getUsernameFromToken(String token) {
-        String username = null;
+    public String getSubjectFromToken(String token) {
+        String email = null;
         try {
             Claims claims = getClaimsFromToken(token);
             System.out.println("claims = " + claims.toString());
-            username = claims.getSubject();
+            email = claims.getSubject();
         } catch (Exception e) {
             System.out.println("e = " + e.getMessage());
         }
-        return username;
+        return email;
     }
 
     /**

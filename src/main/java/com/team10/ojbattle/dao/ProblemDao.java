@@ -1,7 +1,7 @@
 package com.team10.ojbattle.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.team10.ojbattle.entity.Question;
+import com.team10.ojbattle.entity.Problem;
 import org.apache.ibatis.annotations.Select;
 
 /**
@@ -10,16 +10,16 @@ import org.apache.ibatis.annotations.Select;
  * @author 陈健航
  * @since 2020-04-04 23:50:21
  */
-public interface QuestionDao extends BaseMapper<Question> {
+public interface ProblemDao extends BaseMapper<Problem> {
 
     /**
      * 随机选择一条题目
      * @return
      */
-    @Select("SELECT id, title, summary, content, answer, difficulty, create_time " +
-            "   FROM question " +
+    @Select("SELECT id, title, difficulty" +
+            "   FROM problem " +
             "   ORDER BY RAND() " +
             "   LIMIT 1")
-    Question selectByRandom();
+    Problem selectByRandom();
 
 }

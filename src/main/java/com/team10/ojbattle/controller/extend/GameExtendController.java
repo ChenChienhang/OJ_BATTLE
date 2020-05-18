@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class GameExtendController extends GameController {
 
     @GetMapping
-    public R<IPage<Game>> selectPageByUserId(@RequestParam String userId,
+    public R<IPage<Game>> selectPageByUserId(@RequestParam(value = "userId") Integer userId,
                                              @RequestParam(defaultValue = "1", value = "pageNum") Integer current,
                                              @RequestParam(defaultValue = "10", value = "pageSize") Integer size) {
         return R.ok(gameService.listPageByUserId(userId, current, size));

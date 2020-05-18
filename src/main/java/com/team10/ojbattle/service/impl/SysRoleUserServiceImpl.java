@@ -1,9 +1,9 @@
 package com.team10.ojbattle.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.team10.ojbattle.dao.SysUserRoleDao;
-import com.team10.ojbattle.entity.SysUserRole;
-import com.team10.ojbattle.service.SysUserRoleService;
+import com.team10.ojbattle.dao.SysRoleUserDao;
+import com.team10.ojbattle.entity.SysRoleUser;
+import com.team10.ojbattle.service.SysRoleUserService;
 import org.springframework.stereotype.Service;
 
 /**
@@ -13,6 +13,6 @@ import org.springframework.stereotype.Service;
  * @since 2020-04-08 09:49:42
  */
 @Service("sysUserRoleService")
-public class SysUserRoleServiceImpl extends ServiceImpl<SysUserRoleDao, SysUserRole> implements SysUserRoleService {
+public class SysRoleUserServiceImpl extends ServiceImpl<SysRoleUserDao, SysRoleUser> implements SysRoleUserService {
 
 }

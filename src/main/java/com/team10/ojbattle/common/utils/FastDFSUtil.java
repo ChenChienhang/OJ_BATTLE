@@ -1,4 +1,4 @@
-package com.team10.ojbattle.component;
+package com.team10.ojbattle.common.utils;
 
 
 import com.team10.ojbattle.entity.FastDFSFile;

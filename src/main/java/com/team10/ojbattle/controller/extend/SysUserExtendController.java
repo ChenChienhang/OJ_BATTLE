@@ -1,16 +1,11 @@
 package com.team10.ojbattle.controller.extend;
 
 import com.baomidou.mybatisplus.extension.api.R;
-import com.team10.ojbattle.component.FastDFSUtil;
 import com.team10.ojbattle.controller.SysUserController;
-
-import com.team10.ojbattle.entity.FastDFSFile;
 import com.team10.ojbattle.entity.SysUser;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,24 +22,47 @@ public class SysUserExtendController extends SysUserController {
 
     /**
      * 上传头像
+     *
      * @param file
      * @return
      * @throws Exception
      */
-    @PostMapping("/uploadAvatar")
-    public R<Map<String, String>> uploadAvatar(@RequestParam("file") MultipartFile file) throws Exception {
+    @PostMapping("/upload_avatar")
+    public R<String> uploadAvatar(@RequestParam("file") MultipartFile file) throws Exception {
         String avatar = sysUserService.uploadAvatar(file);
-        Map<String, String> res = new HashMap<>(1);
-        res.put("avatar", avatar);
-        return R.ok(res);
+        return R.ok(avatar);
     }
 
-    @GetMapping("/verifycode/{email}")
-    public R<String> sendEmail(@PathVariable String email) {
+    /**
+     * 发送注册邮件
+     *
+     * @param email
+     * @return
+     */
+    @GetMapping("/reg_email")
+    public R<String> sendRegEmail(@RequestParam String email) {
         sysUserService.sendRegEmailProcedure(email);
         return R.ok(null);
     }
 
+    /**
+     * 找回密码邮件
+     *
+     * @param email
+     * @return
+     */
+    @GetMapping("/find_email")
+    public R<String> sendFindEmail(@RequestParam String email) {
+        sysUserService.sendFindEmailProcedure(email);
+        return R.ok(null);
+    }
+
+    /**
+     * 注册
+     *
+     * @param map
+     * @return
+     */
     @PostMapping("/register")
     public R<String> register(@RequestBody Map<String, String> map) {
         sysUserService.register(map);
@@ -53,11 +71,18 @@ public class SysUserExtendController extends SysUserController {
 
     /**
      * 查询ranking前十的用户，返回对象仅携带id,name,ranking
+     *
      * @return
      */
-    @GetMapping("/toplist")
+    @GetMapping("/top_list")
     public R<List<SysUser>> selectRankList() {
         return R.ok(sysUserService.listTopList());
+    }
+
+    @PutMapping("/reset")
+    public R<String> reset(@RequestBody Map<String, String> map) {
+        sysUserService.reset(map);
+        return R.ok(null);
     }
 
 

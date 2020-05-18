@@ -38,7 +38,8 @@ public class HeartBeatPool {
     /**
      * 退出游戏value
      */
-    private static final String QUIT_GAME_VALUE = "QUIT_GAME";
+    private static final String GIVE_UP_VALUE = "GIVE_UP";
+
 
     /**
      * 提交value
@@ -51,7 +52,12 @@ public class HeartBeatPool {
     public static final String OK_RET = "OK_RET";
 
     /**
-     * 返回值：对方已经退出对局
+     * 返回值：对方已经放弃对局
+     */
+    public static final String GIVE_UP_RET = "GIVE_UP_RET";
+
+    /**
+     * 返回值：对方掉线
      */
     public static final String QUIT_RET = "QUIT_RET";
 
@@ -82,11 +88,13 @@ public class HeartBeatPool {
         String res = OK_RET;
         //对方不在对局中，已经放弃或者离线
         if (opponentValue == null) {
-            res = QUIT_RET;
+            res = GIVE_UP_RET;
         } else {
             //对方还在对局，且已经完成对局
             if (PASS_GAME_VALUE.equals(opponentValue)) {
                 res = FINISH_RET;
+            } else if (GIVE_UP_VALUE.equals(opponentValue)) {
+                res = GIVE_UP_RET;
             }
             //否则表示对方还在做题，直接结束
         }
@@ -97,15 +105,15 @@ public class HeartBeatPool {
         //获取userId
         AuthUser authUser = (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long userId = authUser.getUserId();
-        stringRedisTemplate.opsForValue().set(ON_GAME_KEY + SEPARATOR + gameId + SEPARATOR + userId, ON_GAME_VALUE, 20, TimeUnit.SECONDS);
+        stringRedisTemplate.opsForValue().set(ON_GAME_KEY + SEPARATOR + gameId + SEPARATOR + userId, GIVE_UP_VALUE, 20, TimeUnit.SECONDS);
     }
 
-    public void quit(String gameId) {
+    public void giveUp(String gameId) {
         //获取userId
         AuthUser authUser = (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long userId = authUser.getUserId();
         //修改自身对局信息，时间为1天，表示已退出
-        stringRedisTemplate.opsForValue().set(ON_GAME_KEY + SEPARATOR + gameId + SEPARATOR + userId, QUIT_GAME_VALUE, 1, TimeUnit.DAYS);
+        stringRedisTemplate.opsForValue().set(ON_GAME_KEY + SEPARATOR + gameId + SEPARATOR + userId, GIVE_UP_RET, 1, TimeUnit.DAYS);
     }
 
     public void finish(String gameId) {

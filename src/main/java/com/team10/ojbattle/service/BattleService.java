@@ -17,7 +17,7 @@ public interface BattleService {
      *
      * @return
      */
-    void battleMatch();
+    String battleMatch();
 
     /**
      * 匹配轮询
@@ -28,8 +28,8 @@ public interface BattleService {
 
     /**
      * 心跳保持
-     * @param gameId
-     * @param opponentId
+     * @param gameId 游戏id
+     * @param opponentId 对局id
      * @return
      */
     String heartBeat(String gameId, String opponentId);
@@ -37,27 +37,29 @@ public interface BattleService {
     /**
      * 提交
      *
-     * @param submission
+     * @param submission 提交记录
      */
     void submit(Submission submission);
 
     /**
      * 退出游戏
+     * @param gameId 游戏id
      */
     void quit(String gameId);
 
     /**
      * 开启对局
      *
-     * @return
+     * @return 返回
      */
     Long secondShakeHand();
 
+
     /**
      * 确认对方开启对局
-     *
-     * @param map
-     * @return
+     * @param opponentId 对手id
+     * @param opponentName 对手用户名
+     * @return 对局id
      */
-    String thirdShakeHand(Map<String, String> map);
+    String thirdShakeHand(String opponentId, String opponentName);
 }

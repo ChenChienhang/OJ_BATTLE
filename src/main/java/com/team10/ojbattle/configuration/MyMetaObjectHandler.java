@@ -6,7 +6,6 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 /**
  * @author: 陈健航
@@ -17,7 +16,6 @@ import java.util.Date;
 @Slf4j
 @Component
 public class MyMetaObjectHandler implements MetaObjectHandler {
-
     /**
      * 创建时自填装数据
      *
@@ -25,9 +23,11 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
      */
     @Override
     public void insertFill(MetaObject metaObject) {
+        log.info("start insert fill ....");
         this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
-        this.fillStrategy(metaObject, "createTime", LocalDateTime.now());
+        this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
     }
+
 
     /**
      * 更新时候自动填装数据
@@ -36,7 +36,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
      */
     @Override
     public void updateFill(MetaObject metaObject) {
+        log.info("start update fill ....");
         this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
-        this.fillStrategy(metaObject, "updateTime", LocalDateTime.now());
     }
 }

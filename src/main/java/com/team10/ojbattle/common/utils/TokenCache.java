@@ -1,4 +1,4 @@
-package com.team10.ojbattle.component;
+package com.team10.ojbattle.common.utils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;

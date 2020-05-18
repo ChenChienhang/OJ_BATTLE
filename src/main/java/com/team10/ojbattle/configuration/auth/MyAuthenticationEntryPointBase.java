@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * @author: 陈健航
@@ -24,9 +25,7 @@ public class MyAuthenticationEntryPointBase extends BaseJSONAuthentication imple
                          HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {
 
-//        R<String> data = R.failed("访问此资源需要完全身份验证（"+authException.getMessage()+"）！");
-        //未登录
-        R<String> data = R.failed(MyErrorCodeEnum.HAVEN_NOT_LOGIN_ERROR);
+        R<String> data = R.failed(Objects.requireNonNull(MyErrorCodeEnum.valueOf(Long.parseLong(authException.getMessage()))));
         //输出
         this.WriteJSON(request, response, data);
     }

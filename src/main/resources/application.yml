@@ -4,9 +4,9 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/oj_battle?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://118.178.253.239:3306/oj_battle?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8
     username: root
-    password: root
+    password: M1y3s2q2l9798448?
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
       initial-size: 8
@@ -33,22 +33,22 @@ spring:
       #请求大小（含表单）
       max-request-size: 2MB
 
-
   redis:
     host: 118.178.253.239
+    password: R1e3d2i2s9798448?
 
   rabbitmq:
     host: 118.178.253.239
     username: guest
-    password: guest
+    password: R1a3b2b2i9t7m9q8448?
 
   #邮件系统
   mail:
     host: smtp.qq.com
     port: 465
-    username: 853804445@qq.com
+    username: jankins.chen@foxmail.com
     #授权码
-    password: jgictaccuwrzbcbi
+    password: owxqnpwfaoegbbbg
     protocol: smtp
     default-encoding: utf-8
     properties:
@@ -67,6 +67,7 @@ spring:
   #redis锁
   klock:
     address: 118.178.253.239:6379
+    password: R1e3d2i2s9798448?
 
 mybatis-plus:
   global-config:
@@ -84,8 +85,10 @@ mybatis-plus:
     #延时加载
     lazy-loading-enabled: true
     #演示加载
-    multiple-result-sets-enabled: true
-  type-enums-package: com.team10.ojbattle.common.myenum
+    multiple-result-sets-enabled: false
+
+  #扫描枚举配置包
+  type-enums-package: com.team10.ojbattle.common.enums
 
 
 

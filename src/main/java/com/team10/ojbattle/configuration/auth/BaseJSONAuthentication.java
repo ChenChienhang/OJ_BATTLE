@@ -23,6 +23,7 @@ public abstract class BaseJSONAuthentication {
 
     /**
      * 输出JSON
+     *
      * @param request
      * @param response
      * @param data
@@ -30,8 +31,8 @@ public abstract class BaseJSONAuthentication {
      * @throws ServletException
      */
     protected void WriteJSON(HttpServletRequest request,
-                         HttpServletResponse response,
-                         Object data) throws IOException, ServletException {
+                             HttpServletResponse response,
+                             Object data) throws IOException {
         //这里很重要，否则页面获取不到正常的JSON数据集
         response.setContentType("application/json;charset=UTF-8");
         response.setHeader("Access-Control-Allow-Origin", "*");

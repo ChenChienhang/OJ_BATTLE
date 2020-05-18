@@ -2,44 +2,39 @@ package com.team10.ojbattle.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.team10.ojbattle.component.FastDFSUtil;
+import com.team10.ojbattle.common.exception.MyErrorCodeEnum;
+import com.team10.ojbattle.common.exception.MyException;
+import com.team10.ojbattle.common.utils.FastDFSUtil;
+import com.team10.ojbattle.component.EmailUtils;
 import com.team10.ojbattle.dao.SysUserDao;
 import com.team10.ojbattle.entity.FastDFSFile;
 import com.team10.ojbattle.entity.Game;
-import com.team10.ojbattle.entity.SysRole;
 import com.team10.ojbattle.entity.SysUser;
 import com.team10.ojbattle.entity.auth.AuthUser;
-import com.team10.ojbattle.common.exception.MyErrorCodeEnum;
-import com.team10.ojbattle.common.exception.MyException;
 import com.team10.ojbattle.service.GameService;
 import com.team10.ojbattle.service.SysRoleService;
 import com.team10.ojbattle.service.SysUserService;
-
 import io.netty.util.internal.StringUtil;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.IOException;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -50,6 +45,7 @@ import java.util.concurrent.TimeUnit;
  * @author 陈健航
  * @since 2020-04-04 23:43:19
  */
+@Slf4j
 @Service("sysUserService")
 @Transactional(rollbackFor = Exception.class)
 public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser>
@@ -62,48 +58,37 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser>
     StringRedisTemplate stringRedisTemplate;
 
     @Autowired
-    private SysRoleService roleService;
+    SysRoleService roleService;
 
     @Autowired
     RabbitTemplate rabbitTemplate;
 
     @Autowired
-    private JavaMailSender mailSender;
+    GameService gameService;
 
     @Autowired
-    private GameService gameService;
+    EmailUtils emailUtils;
 
     private static final String EMAIL_QUEUE = "oj_battle_email";
 
-    @Value("${spring.mail.username}")
-    private String SENDER;
-
     private static final String VERIFY_CODE_KEY = "verification_code_";
 
-    /**
-     * 登录检查用
-     *
-     * @param username
-     * @param rawPassword
-     * @return
-     */
     @Override
-    public boolean checkLogin(String username, String rawPassword) {
+    public boolean checkLogin(String username, String rawPassword) throws Exception {
         // 已经做了空异常处理，一定不为空
         LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(SysUser::getName, username);
+        //这里不是用户，应该是邮箱！！！！
+        queryWrapper.eq(SysUser::getEmail, username);
         SysUser sysUser = baseMapper.selectOne(queryWrapper);
         if (sysUser == null) {
-            throw new MyException(MyErrorCodeEnum.EMAIL_EXIST_ERROR);
+            throw new Exception(String.valueOf(MyErrorCodeEnum.EMAIL_EXIST_ERROR.getCode()));
         }
-        System.out.println("authUser:'" + sysUser);
         // 从数据库查出的用户对象
         String encodedPassword = sysUser.getPassword();
         // 和加密后的密码进行比配
         if (!bCryptPasswordEncoder.matches(rawPassword, encodedPassword)) {
             // 抛出密码错误异常
-            System.out.println("checkLogin--------->密码不正确！");
-            throw new MyException(MyErrorCodeEnum.LOGIN_ERROR);
+            throw new Exception(String.valueOf(MyErrorCodeEnum.PASSWORD_ERROR.getCode()));
         } else {
             return true;
         }
@@ -129,15 +114,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser>
         }
         // 检验验证码
         String key = VERIFY_CODE_KEY + user.get("email");
-        System.out.println(("verification_code_" + "20172333112@m.scnu.edu.cn").equals(key));
-        System.out.println(key);
         String verificationCode = stringRedisTemplate.opsForValue().get(key);
-        String s = stringRedisTemplate.opsForValue().get("verification_code_20172333112@m.scnu.edu.cn");
-
-        System.out.println(verificationCode);
-
         if (StringUtil.isNullOrEmpty(verificationCode)
-                || !verificationCode.equals(user.get("verifyCode"))) {
+                || !verificationCode.equals(user.get("verificationCode"))) {
             // 抛出验证码异常
             throw new MyException(MyErrorCodeEnum.VERIFICATION_ERROR);
         }
@@ -145,7 +124,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser>
         // 存入数据库
         SysUser sysUser3 = new SysUser();
         sysUser3.setEmail(user.get("email"));
-        sysUser3.setPassword(bCryptPasswordEncoder.encode(user.get("password")));
+        sysUser3.setPassword(user.get("password"));
         sysUser3.setRoleId("1");
         this.save(sysUser3);
         return true;
@@ -154,35 +133,28 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser>
     /**
      * 用户token校验用
      *
-     * @param username
+     * @param username 这里用email查，不是用username
      * @return
-     * @throws UsernameNotFoundException
      */
+    @SneakyThrows
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // 根据用户名查询用户
-        LambdaQueryWrapper<SysUser> userWrapper = new LambdaQueryWrapper<>();
-        userWrapper.eq(SysUser::getName, username);
-        SysUser sysUser = this.getOne(userWrapper);
+    public UserDetails loadUserByUsername(String username) {
+        // 这里用email查，不是用username
+        SysUser sysUser = this.baseMapper.getByEmail(username);
         if (sysUser == null) {
-            System.out.println("checkLogin--------->账号不存在，请重新尝试！");
-            throw new MyException(MyErrorCodeEnum.EMAIL_EXIST_ERROR);
+            throw new Exception(String.valueOf(MyErrorCodeEnum.EMAIL_EXIST_ERROR.getCode()));
         }
-        // 赋予角色
-        LambdaQueryWrapper<SysRole> roleWrapper = new LambdaQueryWrapper<>();
-        roleWrapper.eq(SysRole::getId, sysUser.getRoleId());
-        List<SysRole> roles = roleService.list(roleWrapper);
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        for (SysRole role : roles) {
-            authorities.add(new SimpleGrantedAuthority(role.getName()));
-        }
+        sysUser.setEmail(username);
         return new AuthUser(
                 sysUser.getId(),
                 sysUser.getName(),
                 sysUser.getPassword(),
                 sysUser.getFlag(),
                 sysUser.getRanking(),
-                authorities);
+                sysUser.getAvatar(),
+                sysUser.getEmail(),
+                sysUser.getSysBackendApiList(),
+                sysUser.getSysRoleList());
     }
 
     @Override
@@ -198,7 +170,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser>
 
         // 生成随机六位验证码
         String verifyCode = RandomStringUtils.randomNumeric(6);
-        System.out.println("verifyCode: " + verifyCode);
+        log.info("verifyCode: " + verifyCode);
 
         // 存入redis,有效期15min
         String key = VERIFY_CODE_KEY + email;
@@ -208,48 +180,21 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser>
         Map<String, String> map = new HashMap<>(2);
         map.put("email", email);
         map.put("verifyCode", verifyCode);
-        System.out.println("123");
         rabbitTemplate.convertAndSend(EMAIL_QUEUE, map);
     }
 
     @RabbitListener(queues = EMAIL_QUEUE)
     @Override
-    public void sendRegEmailConsumer(Map<String, String> map) {
-        // 读取短信模板
-        System.out.println(SENDER);
-        InputStream is = this.getClass().getResourceAsStream("/email_content.txt");
-        final int bufferSize = 1024;
-        final char[] buffer = new char[bufferSize];
-        final StringBuilder out = new StringBuilder();
-        Reader in = new InputStreamReader(is, StandardCharsets.UTF_8);
-        for (; ; ) {
-            int rsz = 0;
-            try {
-                rsz = in.read(buffer, 0, buffer.length);
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.out.println("读取错误");
-            }
-            if (rsz < 0) {
-                break;
-            }
-            out.append(buffer, 0, rsz);
-        }
+    public void sendRegEmailConsumer(Map<String, String> map) throws IOException {
         String to = map.get("email");
         String verifyCode = map.get("verifyCode");
         String content =
-                out.toString()
+                emailUtils.readContent("email_content.txt")
                         .replace("DATE", new SimpleDateFormat("yyyy-MM-dd").format(new Date()))
                         .replace("VERIFYCODE", verifyCode);
         String title = "Oj Battle 验证码";
-        System.out.println("读取");
-        SimpleMailMessage message = new SimpleMailMessage();
-
-        message.setTo(to);
-        message.setFrom(SENDER);
-        message.setSubject(title);
-        message.setText(content);
-        mailSender.send(message);
+        emailUtils.sendEmail(to, title, content);
+        log.info("发送验证码" + verifyCode + "到" + to);
     }
 
     @Override
@@ -281,6 +226,134 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser>
     }
 
     @Override
+    public void sendFindEmailProcedure(String email) {
+        // 查询邮箱有没有被注册过
+        LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysUser::getEmail, email);
+        SysUser user = getOne(wrapper);
+        // 邮箱不存在，无法找回密码
+        if (user == null) {
+            throw new MyException(MyErrorCodeEnum.EMAIL_EXIST_ERROR);
+        }
+
+        // 生成随机六位验证码
+        String verifyCode = RandomStringUtils.randomNumeric(6);
+        System.out.println("verifyCode: " + verifyCode);
+
+        // 存入redis,有效期15min
+        String key = VERIFY_CODE_KEY + email;
+        stringRedisTemplate.opsForValue().set(key, verifyCode, 15, TimeUnit.MINUTES);
+
+        // 发送到消息队列
+        Map<String, String> map = new HashMap<>(2);
+        map.put("email", email);
+        map.put("verifyCode", verifyCode);
+        rabbitTemplate.convertAndSend(EMAIL_QUEUE, map);
+    }
+
+    @Override
+    public void reset(Map<String, String> map) {
+        String email = map.get("email");
+        String password = map.get("password");
+
+        // 检验验证码
+        String key = VERIFY_CODE_KEY + email;
+        String verificationCode = stringRedisTemplate.opsForValue().get(key);
+        if (StringUtil.isNullOrEmpty(verificationCode)
+                || !verificationCode.equals(map.get("verificationCode"))) {
+            // 抛出验证码异常
+            throw new MyException(MyErrorCodeEnum.VERIFICATION_ERROR);
+        }
+
+        LambdaUpdateWrapper<SysUser> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(SysUser::getEmail, email).set(SysUser::getPassword, bCryptPasswordEncoder.encode(password));
+        boolean update = update(wrapper);
+        //找不到该逻辑
+        if (!update) {
+            throw new MyException(MyErrorCodeEnum.EMAIL_EXIST_ERROR);
+        }
+
+    }
+
+
+    //=================下面方法均为了加密密码重写（aop切起来麻烦就算了）========================
+
+    /**
+     * 重写，防止查出密码等
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public SysUser getById(Serializable id) {
+        SysUser user = super.getById(id);
+        if (user != null) {
+            user.setPassword(null);
+        }
+        return user;
+    }
+
+    /**
+     * 重写，防止查出密码等
+     *
+     * @return
+     */
+    @Override
+    public List<SysUser> list() {
+        List<SysUser> list = super.list();
+        if (list != null) {
+            for (SysUser user : list) {
+                user.setPassword(null);
+            }
+        }
+        return list;
+    }
+
+    /**
+     * 重写，防止查出密码等
+     *
+     * @param page
+     * @return
+     */
+    @Override
+    public <E extends IPage<SysUser>> E page(E page) {
+        E res = super.page(page);
+        if (res.getRecords() != null) {
+            for (SysUser user : res.getRecords()) {
+                user.setPassword(null);
+            }
+        }
+        return res;
+    }
+
+    /**
+     * 重写，密码加密
+     *
+     * @param entity
+     * @return
+     */
+    @Override
+    public boolean save(SysUser entity) {
+        entity.setPassword(bCryptPasswordEncoder.encode(entity.getPassword()));
+        return super.save(entity);
+    }
+
+    /**
+     * 重写，密码加密
+     *
+     * @param entityList
+     * @return
+     */
+    @Override
+    public boolean saveBatch(Collection<SysUser> entityList) {
+        for (SysUser user : entityList) {
+            user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        }
+        return super.saveBatch(entityList);
+    }
+
+
+    @Override
     public boolean updateById(SysUser entity) {
         //密码加密
         if (!StringUtil.isNullOrEmpty(entity.getPassword())) {
@@ -300,17 +373,4 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser>
         }
         return super.updateById(entity);
     }
-
-    /**
-     * 重写，防止查出密码等
-     *
-     * @param id
-     * @return
-     */
-    @Override
-    public SysUser getById(Serializable id) {
-        return baseMapper.getById(id);
-    }
-
-
 }

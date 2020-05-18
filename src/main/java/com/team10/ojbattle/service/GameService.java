@@ -22,5 +22,5 @@ public interface GameService extends IService<Game> {
      * @param size
      * @return
      */
-    IPage<Game> listPageByUserId(String userId, Integer current, Integer size);
+    IPage<Game> listPageByUserId(Integer userId, Integer current, Integer size);
 }

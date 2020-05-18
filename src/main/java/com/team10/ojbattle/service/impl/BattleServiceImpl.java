@@ -1,10 +1,13 @@
 package com.team10.ojbattle.service.impl;
 
 import com.team10.ojbattle.component.HeartBeatPool;
+import com.team10.ojbattle.component.JwtTokenUtil;
 import com.team10.ojbattle.component.MatchingPool;
 import com.team10.ojbattle.entity.Submission;
+import com.team10.ojbattle.entity.auth.AuthUser;
 import com.team10.ojbattle.service.BattleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,10 +28,14 @@ public class BattleServiceImpl implements BattleService {
     @Autowired
     MatchingPool matchingPool;
 
+    @Autowired
+    JwtTokenUtil jwtTokenUtil;
+
     @Override
-    public void battleMatch() {
+    public String battleMatch() {
         // 加入匹配池
         matchingPool.add();
+        return jwtTokenUtil.generateToken((AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
     }
 
     /**
@@ -52,13 +59,13 @@ public class BattleServiceImpl implements BattleService {
 
     /**
      * 等待确认，可能等待确认异常
-     *
-     * @param map 对手id，对手name
+     * @param opponentId 对手id
+     * @param opponentName 对手用户名
      * @return gameId对局id/RET_KEEP_CONFIRM轮询确认/RET_MATCH_ERROR匹配错误
      */
     @Override
-    public String thirdShakeHand(Map<String, String> map) {
-        return matchingPool.thirdShakeHand(map);
+    public String thirdShakeHand(String opponentId, String opponentName) {
+        return matchingPool.thirdShakeHand(opponentId, opponentName);
     }
 
     /**
@@ -81,6 +88,6 @@ public class BattleServiceImpl implements BattleService {
      */
     @Override
     public void quit(String gameId) {
-        heartBeatPool.quit(gameId);
+        heartBeatPool.giveUp(gameId);
     }
 }

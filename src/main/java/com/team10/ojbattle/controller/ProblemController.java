@@ -1,12 +1,10 @@
 package com.team10.ojbattle.controller;
 
-import com.team10.ojbattle.entity.Question;
-import com.team10.ojbattle.service.QuestionService;
-
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.api.R;
-
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.team10.ojbattle.entity.Problem;
+import com.team10.ojbattle.service.ProblemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,33 +18,33 @@ import java.util.List;
  * @since 2020-04-17 10:33:45
  */
 @CrossOrigin
-public class QuestionController {
-    
+public class ProblemController {
+
     @Autowired
-    protected QuestionService questionService; 
-    
+    protected ProblemService problemService;
+
     /**
      * 查询所有数据
-     * 
+     *
      * @return 所有数据
      */
     @GetMapping("/all")
-    public R<List<Question>> selectAll() {
-        return R.ok(this.questionService.list());
+    public R<List<Problem>> selectAll() {
+        return R.ok(this.problemService.list());
     }
-    
+
     /**
      * 分页查询所有数据
-     * 
+     *
      * @param current 查询的页数
-     * @param size 页面大小
+     * @param size    页面大小
      * @return 分页数据
      */
     @GetMapping("/page")
-    public R<IPage<Question>> selectPage(@RequestParam(defaultValue = "1", value = "pageNum") Integer current, @RequestParam(defaultValue = "10", value = "pageSize") Integer size) {
-        return R.ok(this.questionService.page(new Page<>(current, size), null));
+    public R<IPage<Problem>> selectPage(@RequestParam(defaultValue = "1", value = "pageNum") Integer current, @RequestParam(defaultValue = "10", value = "pageSize") Integer size) {
+        return R.ok(this.problemService.page(new Page<>(current, size)));
     }
-    
+
     /**
      * 通过主键查询单条数据
      *
@@ -54,32 +52,32 @@ public class QuestionController {
      * @return 单条数据
      */
     @GetMapping("/{id}")
-    public R<Question> selectOne(@PathVariable Serializable id) {
-        return R.ok(this.questionService.getById(id));
+    public R<Problem> selectOne(@PathVariable Serializable id) {
+        return R.ok(this.problemService.getById(id));
     }
 
     /**
      * 新增数据
      *
-     * @param question 实体对象
+     * @param problem 实体对象
      * @return 新增结果
      */
     @PostMapping
-    public R<Long> insert(@RequestBody Question question) {
-        boolean rs = this.questionService.save(question);
-        return R.ok(rs ? question.getId() : 0);
+    public R<Long> insert(@RequestBody Problem problem) {
+        boolean rs = this.problemService.save(problem);
+        return R.ok(rs ? problem.getId() : 0);
     }
 
     /**
      * 修改数据
      *
-     * @param question 实体对象
+     * @param problem 实体对象
      * @return 修改结果
      */
     @PutMapping
-    public R<Long> update(@RequestBody Question question) {
-        boolean rs = this.questionService.updateById(question);
-        return R.ok(rs ? question.getId() : 0);
+    public R<Long> update(@RequestBody Problem problem) {
+        boolean rs = this.problemService.updateById(problem);
+        return R.ok(rs ? problem.getId() : 0);
     }
 
     /**
@@ -90,6 +88,6 @@ public class QuestionController {
      */
     @DeleteMapping
     public R<Boolean> delete(@RequestParam("idList") List<Integer> idList) {
-        return R.ok(this.questionService.removeByIds(idList));
+        return R.ok(this.problemService.removeByIds(idList));
     }
 }

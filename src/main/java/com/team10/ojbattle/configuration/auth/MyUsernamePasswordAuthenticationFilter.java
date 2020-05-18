@@ -18,6 +18,7 @@ import java.util.Map;
 
 /**
  * 重写UsernamePasswordAuthenticationFilter过滤器
+ *
  * @author CJH
  */
 public class MyUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -29,7 +30,7 @@ public class MyUsernamePasswordAuthenticationFilter extends UsernamePasswordAuth
     public Authentication attemptAuthentication(HttpServletRequest request,
                                                 HttpServletResponse response) throws AuthenticationException {
 
-        if (request.getContentType().equals(MediaType.APPLICATION_JSON_VALUE)) {
+        if (MediaType.APPLICATION_JSON_VALUE.equals(request.getContentType())) {
             ObjectMapper mapper = new ObjectMapper();
             UsernamePasswordAuthenticationToken authRequest;
             //取authenticationBean
@@ -39,7 +40,7 @@ public class MyUsernamePasswordAuthenticationFilter extends UsernamePasswordAuth
                 authenticationBean = mapper.readValue(is, Map.class);
             } catch (IOException e) {
                 //将异常放到自定义的异常类中
-                throw  new MyAuthenticationException(e.getMessage());
+                throw new MyAuthenticationException(e.getMessage());
             }
             try {
                 if (!authenticationBean.isEmpty()) {
@@ -60,7 +61,7 @@ public class MyUsernamePasswordAuthenticationFilter extends UsernamePasswordAuth
             }
             return null;
         } else {
-            return this.attemptAuthentication(request, response);
+            return super.attemptAuthentication(request, response);
         }
     }
 }
