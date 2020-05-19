@@ -62,15 +62,26 @@ public class SysUser extends Model<SysUser> {
 
 
     /**
-     * ranking值
+     * 提交的总次数
      */
-    private Integer ranking;
+    private Integer submissionCount;
 
 
     /**
-     * 用户角色（方便扩展）
+     * 通过的次数
      */
-    private String roleId;
+    private Integer acCount;
+
+
+    /**
+     * rating值
+     */
+    private Integer rating;
+
+    /**
+     * 个性签名
+     */
+    private String profile;
 
     /**
      * 用户状态，-1:删除（注销） 0：正常

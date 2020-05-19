@@ -96,11 +96,10 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
                 //所有注册和登录的请求都可以通过
                 .antMatchers(HttpMethod.POST, "/user/register").permitAll()
                 .antMatchers(HttpMethod.POST, "/login").permitAll()
-                .antMatchers(HttpMethod.GET, "user/reg_email").permitAll()
-                .antMatchers(HttpMethod.PUT, "user/reset").permitAll()
-                .antMatchers(HttpMethod.POST, "user/upload_avatar").permitAll()
-                .antMatchers(HttpMethod.POST, "user/top_list").permitAll()
-                .antMatchers(HttpMethod.GET, "user/find_email").permitAll()
+                .antMatchers(HttpMethod.GET, "/user/reg_email").permitAll()
+                .antMatchers(HttpMethod.PUT, "/user/reset").permitAll()
+                .antMatchers(HttpMethod.GET, "/user/top_list").permitAll()
+                .antMatchers(HttpMethod.GET, "/user/find_email").permitAll()
                 .anyRequest().access("@dynamicPermission.checkPermission(request,authentication)");
 
         //拦截账号、密码。覆盖 UsernamePasswordAuthenticationFilter过滤器

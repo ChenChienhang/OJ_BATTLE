@@ -1,11 +1,13 @@
 package com.team10.ojbattle.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.team10.ojbattle.entity.SysUser;
+import com.team10.ojbattle.entity.vo.RegisterVO;
+import com.team10.ojbattle.entity.vo.ResetUsrVO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,11 +31,10 @@ public interface SysUserService extends IService<SysUser> {
     /**
      * 注册
      *
-     * @param user
+     * @param registerVO
      * @return
-     * @throws Exception
      */
-    boolean register(Map<String, String> user);
+    boolean register(RegisterVO registerVO);
 
 
     /**
@@ -64,9 +65,11 @@ public interface SysUserService extends IService<SysUser> {
     /**
      * 获取ranking前十的用户，只包含部分信息，密码这些信息不会查出来
      *
+     * @param current
+     * @param size
      * @return
      */
-    List<SysUser> listTopList();
+    IPage<SysUser> listTopList(Integer current, Integer size);
 
 
     /**
@@ -79,7 +82,7 @@ public interface SysUserService extends IService<SysUser> {
     /**
      * 重置密码
      *
-     * @param map
+     * @param resetUsrVO
      */
-    void reset(Map<String, String> map);
+    void reset(ResetUsrVO resetUsrVO);
 }

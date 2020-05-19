@@ -1,11 +1,11 @@
 package com.team10.ojbattle.component;
 
 import com.team10.ojbattle.common.enums.TypeEnum;
+import com.team10.ojbattle.common.exception.MyErrorCodeEnum;
+import com.team10.ojbattle.common.exception.MyException;
 import com.team10.ojbattle.entity.Game;
 import com.team10.ojbattle.entity.Problem;
 import com.team10.ojbattle.entity.auth.AuthUser;
-import com.team10.ojbattle.common.exception.MyErrorCodeEnum;
-import com.team10.ojbattle.common.exception.MyException;
 import com.team10.ojbattle.service.GameService;
 import com.team10.ojbattle.service.ProblemService;
 import io.netty.util.internal.StringUtil;
@@ -15,7 +15,9 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -97,7 +99,7 @@ public class MatchingPool {
         AuthUser authUser = (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long userId = authUser.getUserId();
         String username = authUser.getUsername();
-        Integer ranking = authUser.getRanking();
+        Integer ranking = authUser.getRating();
         String userData = userId + SEPARATOR + username;
 
         //把自己扔进匹配池

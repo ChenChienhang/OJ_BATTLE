@@ -3,14 +3,10 @@ package com.team10.ojbattle;
 
 import com.alibaba.excel.EasyExcel;
 import com.team10.ojbattle.common.utils.QuestionDataListener;
-import com.team10.ojbattle.common.utils.SysBackendApiDataListener;
-import com.team10.ojbattle.common.utils.SysRoleBackendApiDataListener;
 import com.team10.ojbattle.common.utils.SysUserDataListener;
 import com.team10.ojbattle.component.JwtTokenUtil;
 import com.team10.ojbattle.dao.SysUserDao;
 import com.team10.ojbattle.entity.Problem;
-import com.team10.ojbattle.entity.SysBackendApi;
-import com.team10.ojbattle.entity.SysRoleBackendApi;
 import com.team10.ojbattle.entity.SysUser;
 import com.team10.ojbattle.service.*;
 import org.junit.Test;
@@ -84,11 +80,11 @@ public class TestApplication {
      */
     @Test
     public void excelToGame() {
-        System.out.println(sysUserDao.getByEmail("888888@qq.com"));
-        String fileName = "C:\\Users\\CJH\\IdeaProjects\\oj-battle\\src\\main\\resources\\demo.xlsx";
-        System.out.println(fileName);
-        EasyExcel.read(fileName, SysRoleBackendApi.class, new SysRoleBackendApiDataListener(sysRoleBackendApiService)).sheet(3).doRead();
-        EasyExcel.read(fileName, SysBackendApi.class, new SysBackendApiDataListener(sysBackendApiService)).sheet(2).doRead();
+//        System.out.println(sysUserDao.getByEmail("888888@qq.com"));
+//        String fileName = "C:\\Users\\CJH\\IdeaProjects\\oj-battle\\src\\main\\resources\\demo.xlsx";
+//        System.out.println(fileName);
+//        EasyExcel.read(fileName, SysRoleBackendApi.class, new SysRoleBackendApiDataListener(sysRoleBackendApiService)).sheet(3).doRead();
+//        EasyExcel.read(fileName, SysBackendApi.class, new SysBackendApiDataListener(sysBackendApiService)).sheet(2).doRead();
         //根据本机xlsx的绝对路径修改
 //        String fileName = "C:\\Users\\CJH\\IdeaProjects\\oj-battle\\src\\main\\resources\\demo.xlsx";
 //        EasyExcel.read(fileName, Game.class, new GameDataListener(gameService)).sheet(3).doRead();
@@ -96,6 +92,7 @@ public class TestApplication {
 //        Pattern pattern = Pattern.compile("/game\\?");
 //        System.out.println(pattern.matcher("/game?pageSize=2&userId=2").find());
 //        System.out.println(pattern.matcher("game/find").find());
+        System.out.println(bCryptPasswordEncoder.matches("88888888", "$2a$10$e1EG850KcZUc2iaXYfvRYOjHdM3vBWZpa4sxd6rDVJ3lIvZPFAS8."));
     }
 
 

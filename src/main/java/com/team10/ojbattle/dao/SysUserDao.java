@@ -32,7 +32,7 @@ public interface SysUserDao extends BaseMapper<SysUser> {
      *
      * @return
      */
-    @Select("SELECT id,`name`,avatar, ranking FROM sys_user WHERE flag = 0 order by ranking desc, id asc limit 10")
+    @Select("SELECT id,`name`,avatar,rating,AC_count,submission_count,FROM sys_user WHERE flag = 0 order by rating desc, id asc limit 10")
     List<SysUser> listTopList();
 
     /**
@@ -41,7 +41,7 @@ public interface SysUserDao extends BaseMapper<SysUser> {
      * @param email
      * @return
      */
-    @Select("SELECT id,name,avatar,password,email,credit,ranking,role_id,flag,create_time,update_time " +
+    @Select("SELECT id,name,avatar,password,email,rating " +
             "FROM sys_user " +
             "WHERE flag=0 AND (email = #{email})")
     @Results({

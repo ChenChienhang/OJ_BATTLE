@@ -27,9 +27,7 @@ public class AuthUser implements UserDetails {
 
     private String password;
 
-    private Integer flag;
-
-    private Integer ranking;
+    private Integer rating;
 
     private String avatar;
 
@@ -45,12 +43,11 @@ public class AuthUser implements UserDetails {
     public AuthUser() {
     }
 
-    public AuthUser(Long userId, String username, String password, Integer flag, Integer ranking, String avatar, String email, List<SysBackendApi> sysBackendApiList, List<SysRole> authorities) {
+    public AuthUser(Long userId, String username, String password, Integer rating, String avatar, String email, List<SysBackendApi> sysBackendApiList, List<SysRole> authorities) {
         this.userId = userId;
         this.username = username;
         this.password = password;
-        this.flag = flag;
-        this.ranking = ranking;
+        this.rating = rating;
         this.avatar = avatar;
         this.sysBackendApiList = sysBackendApiList;
         this.email = email;
@@ -102,7 +99,6 @@ public class AuthUser implements UserDetails {
                 "userId='" + userId + '\'' +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
-                ", flag=" + flag +
                 ", authorities=" + authorities +
                 '}';
     }

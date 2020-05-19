@@ -1,13 +1,13 @@
 package com.team10.ojbattle.controller.extend;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.api.R;
 import com.team10.ojbattle.controller.SysUserController;
 import com.team10.ojbattle.entity.SysUser;
+import com.team10.ojbattle.entity.vo.RegisterVO;
+import com.team10.ojbattle.entity.vo.ResetUsrVO;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -60,12 +60,12 @@ public class SysUserExtendController extends SysUserController {
     /**
      * 注册
      *
-     * @param map
+     * @param registerVO
      * @return
      */
     @PostMapping("/register")
-    public R<String> register(@RequestBody Map<String, String> map) {
-        sysUserService.register(map);
+    public R<String> register(@RequestBody RegisterVO registerVO) {
+        sysUserService.register(registerVO);
         return R.ok(null);
     }
 
@@ -75,13 +75,13 @@ public class SysUserExtendController extends SysUserController {
      * @return
      */
     @GetMapping("/top_list")
-    public R<List<SysUser>> selectRankList() {
-        return R.ok(sysUserService.listTopList());
+    public R<IPage<SysUser>> selectRankList(@RequestParam(defaultValue = "1", value = "pageNum") Integer current, @RequestParam(defaultValue = "10", value = "pageSize") Integer size) {
+        return R.ok(sysUserService.listTopList(current, size));
     }
 
     @PutMapping("/reset")
-    public R<String> reset(@RequestBody Map<String, String> map) {
-        sysUserService.reset(map);
+    public R<String> reset(@RequestBody ResetUsrVO resetUsrVO) {
+        sysUserService.reset(resetUsrVO);
         return R.ok(null);
     }
 

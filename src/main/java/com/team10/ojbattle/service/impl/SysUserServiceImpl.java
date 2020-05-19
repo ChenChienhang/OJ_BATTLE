@@ -1,8 +1,10 @@
 package com.team10.ojbattle.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.team10.ojbattle.common.exception.MyErrorCodeEnum;
 import com.team10.ojbattle.common.exception.MyException;
@@ -11,10 +13,14 @@ import com.team10.ojbattle.component.EmailUtils;
 import com.team10.ojbattle.dao.SysUserDao;
 import com.team10.ojbattle.entity.FastDFSFile;
 import com.team10.ojbattle.entity.Game;
+import com.team10.ojbattle.entity.SysRoleUser;
 import com.team10.ojbattle.entity.SysUser;
 import com.team10.ojbattle.entity.auth.AuthUser;
+import com.team10.ojbattle.entity.vo.RegisterVO;
+import com.team10.ojbattle.entity.vo.ResetUsrVO;
 import com.team10.ojbattle.service.GameService;
 import com.team10.ojbattle.service.SysRoleService;
+import com.team10.ojbattle.service.SysRoleUserService;
 import com.team10.ojbattle.service.SysUserService;
 import io.netty.util.internal.StringUtil;
 import lombok.SneakyThrows;
@@ -67,6 +73,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser>
     GameService gameService;
 
     @Autowired
+    SysRoleUserService sysRoleUserService;
+
+    @Autowired
     EmailUtils emailUtils;
 
     private static final String EMAIL_QUEUE = "oj_battle_email";
@@ -95,11 +104,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser>
     }
 
     @Override
-    public boolean register(Map<String, String> user) {
+    public boolean register(RegisterVO registerVO) {
         // 检查邮箱是否已经被注册过,虽然之前已经检查过，避免并发出现
         LambdaQueryWrapper<SysUser> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-
-        lambdaQueryWrapper.eq(SysUser::getEmail, user.get("email"));
+        lambdaQueryWrapper.eq(SysUser::getEmail, registerVO.getEmail());
         SysUser sysUser2 = this.getOne(lambdaQueryWrapper);
         if (sysUser2 != null) {
             throw new MyException(MyErrorCodeEnum.EMAIL_REG_ERROR);
@@ -107,26 +115,33 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser>
 
         // 检查用户名是否已经被注册过
         lambdaQueryWrapper.clear();
-        lambdaQueryWrapper.eq(SysUser::getName, user.get("username"));
+        lambdaQueryWrapper.eq(SysUser::getName, registerVO.getUsername());
         SysUser sysUser1 = this.getOne(lambdaQueryWrapper);
         if (sysUser1 != null) {
             throw new MyException(MyErrorCodeEnum.USERNAME_ERROR);
         }
         // 检验验证码
-        String key = VERIFY_CODE_KEY + user.get("email");
+        String key = VERIFY_CODE_KEY + registerVO.getEmail();
         String verificationCode = stringRedisTemplate.opsForValue().get(key);
         if (StringUtil.isNullOrEmpty(verificationCode)
-                || !verificationCode.equals(user.get("verificationCode"))) {
+                || !verificationCode.equals(registerVO.getVerificationCode())) {
             // 抛出验证码异常
             throw new MyException(MyErrorCodeEnum.VERIFICATION_ERROR);
         }
 
         // 存入数据库
         SysUser sysUser3 = new SysUser();
-        sysUser3.setEmail(user.get("email"));
-        sysUser3.setPassword(user.get("password"));
-        sysUser3.setRoleId("1");
+        sysUser3.setName(registerVO.getUsername());
+        sysUser3.setEmail(registerVO.getEmail());
+        sysUser3.setPassword(registerVO.getPassword());
         this.save(sysUser3);
+
+        //普通用户
+        SysRoleUser sysRoleUser = new SysRoleUser();
+        sysRoleUser.setRoleId((long) 1);
+        sysRoleUser.setUserId(sysUser3.getId());
+        sysRoleUserService.save(sysRoleUser);
+
         return true;
     }
 
@@ -149,8 +164,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser>
                 sysUser.getId(),
                 sysUser.getName(),
                 sysUser.getPassword(),
-                sysUser.getFlag(),
-                sysUser.getRanking(),
+                sysUser.getRating(),
                 sysUser.getAvatar(),
                 sysUser.getEmail(),
                 sysUser.getSysBackendApiList(),
@@ -221,8 +235,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser>
     }
 
     @Override
-    public List<SysUser> listTopList() {
-        return baseMapper.listTopList();
+    public IPage<SysUser> listTopList(Integer current, Integer size) {
+        LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<>();
+        wrapper.orderByDesc(SysUser::getRating);
+        return this.page(new Page<>(current, size), wrapper);
     }
 
     @Override
@@ -252,27 +268,23 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser>
     }
 
     @Override
-    public void reset(Map<String, String> map) {
-        String email = map.get("email");
-        String password = map.get("password");
-
+    public void reset(ResetUsrVO resetUsrVO) {
         // 检验验证码
-        String key = VERIFY_CODE_KEY + email;
+        String key = VERIFY_CODE_KEY + resetUsrVO.getEmail();
         String verificationCode = stringRedisTemplate.opsForValue().get(key);
         if (StringUtil.isNullOrEmpty(verificationCode)
-                || !verificationCode.equals(map.get("verificationCode"))) {
+                || !verificationCode.equals(resetUsrVO.getVerificationCode())) {
             // 抛出验证码异常
             throw new MyException(MyErrorCodeEnum.VERIFICATION_ERROR);
         }
 
         LambdaUpdateWrapper<SysUser> wrapper = new LambdaUpdateWrapper<>();
-        wrapper.eq(SysUser::getEmail, email).set(SysUser::getPassword, bCryptPasswordEncoder.encode(password));
+        wrapper.eq(SysUser::getEmail, resetUsrVO.getEmail()).set(SysUser::getPassword, bCryptPasswordEncoder.encode(resetUsrVO.getPassword()));
         boolean update = update(wrapper);
-        //找不到该逻辑
+        //找不到该邮箱
         if (!update) {
             throw new MyException(MyErrorCodeEnum.EMAIL_EXIST_ERROR);
         }
-
     }
 
 
@@ -318,6 +330,17 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser>
     @Override
     public <E extends IPage<SysUser>> E page(E page) {
         E res = super.page(page);
+        if (res.getRecords() != null) {
+            for (SysUser user : res.getRecords()) {
+                user.setPassword(null);
+            }
+        }
+        return res;
+    }
+
+    @Override
+    public <E extends IPage<SysUser>> E page(E page, Wrapper<SysUser> queryWrapper) {
+        E res = super.page(page, queryWrapper);
         if (res.getRecords() != null) {
             for (SysUser user : res.getRecords()) {
                 user.setPassword(null);
