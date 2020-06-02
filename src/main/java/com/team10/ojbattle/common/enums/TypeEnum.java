@@ -15,12 +15,12 @@ public enum TypeEnum implements IEnum<Integer> {
     /**
      * 对局模式
      */
-    Battle(1, "对局模式"),
+    Battle(0, "对局模式"),
 
     /**
      * 练习模式
      */
-    Practice(2,"练习模式");
+    Practice(1, "练习模式");
 
     TypeEnum(Integer value, String name) {
         this.value = value;

@@ -48,6 +48,7 @@ public class MyOncePerRequestFilter extends OncePerRequestFilter {
 
         log.info("headerToken = " + headerToken);
         log.info("request getMethod = " + request.getMethod());
+        log.info("request" + request.getRequestURI());
 
         if (!StringUtil.isNullOrEmpty(headerToken)) {
             //要去掉约束前缀。

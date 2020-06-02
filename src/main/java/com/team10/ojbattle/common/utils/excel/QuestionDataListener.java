@@ -1,12 +1,10 @@
-package com.team10.ojbattle.common.utils;
+package com.team10.ojbattle.common.utils.excel;
 
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.fastjson.JSON;
-import com.team10.ojbattle.entity.Game;
-import com.team10.ojbattle.entity.SysUser;
-import com.team10.ojbattle.service.GameService;
-import com.team10.ojbattle.service.SysUserService;
+import com.team10.ojbattle.entity.Problem;
+import com.team10.ojbattle.service.ProblemService;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -19,25 +17,25 @@ import java.util.List;
  * @version: 1.0
  */
 @Slf4j
-public class GameDataListener extends AnalysisEventListener<Game> {
+public class QuestionDataListener extends AnalysisEventListener<Problem> {
 
     /**
      * 每隔5条存储数据库，实际使用中可以3000条，然后清理list ，方便内存回收
      */
     private static final int BATCH_COUNT = 1000;
-    List<Game> list = new ArrayList<>();
+    List<Problem> list = new ArrayList<>();
     /**
      * 假设这个是一个DAO，当然有业务逻辑这个也可以是一个service。当然如果不用存储这个对象没用。
      */
-    private GameService gameService;
+    private ProblemService problemService;
 
     /**
      * 如果使用了spring,请使用这个构造方法。每次创建Listener的时候需要把spring管理的类传进来
      *
-     * @param gameService
+     * @param problemService
      */
-    public GameDataListener(GameService gameService) {
-        this.gameService = gameService;
+    public QuestionDataListener(ProblemService problemService) {
+        this.problemService = problemService;
     }
 
     /**
@@ -47,7 +45,7 @@ public class GameDataListener extends AnalysisEventListener<Game> {
      * @param context
      */
     @Override
-    public void invoke(Game data, AnalysisContext context) {
+    public void invoke(Problem data, AnalysisContext context) {
         log.info("解析到一条数据:{}", JSON.toJSONString(data));
         list.add(data);
         // 达到BATCH_COUNT了，需要去存储一次数据库，防止数据几万条数据在内存，容易OOM
@@ -75,7 +73,7 @@ public class GameDataListener extends AnalysisEventListener<Game> {
      */
     private void saveData() {
         log.info("{}条数据，开始存储数据库！", list.size());
-        gameService.saveBatch(list);
+        problemService.saveBatch(list);
         log.info("存储数据库成功！");
     }
 }

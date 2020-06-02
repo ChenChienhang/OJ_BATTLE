@@ -14,17 +14,17 @@ public enum LanguageEnum implements IEnum<Integer> {
     /**
      * cpp
      */
-    CPP(1, "C++"),
+    CPP(0, "C++"),
 
     /**
      * java
      */
-    JAVA(2,"Java"),
+    JAVA(1, "Java"),
 
     /**
      * python
      */
-    PYTHON(3, "Python");
+    PYTHON(2, "Python");
 
     LanguageEnum(Integer value, String name) {
         this.value = value;

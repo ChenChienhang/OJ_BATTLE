@@ -66,8 +66,6 @@ public class SysUserController {
      */
     @PostMapping
     public R<Long> insert(@RequestBody SysUser sysUser) {
-        AuthUser authUser = (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        sysUser.setId(authUser.getUserId());
         boolean rs = this.sysUserService.save(sysUser);
         return R.ok(rs ? sysUser.getId() : 0);
     }
@@ -80,6 +78,8 @@ public class SysUserController {
      */
     @PutMapping
     public R<Long> update(@RequestBody SysUser sysUser) {
+        AuthUser authUser = (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        sysUser.setId(authUser.getUserId());
         boolean rs = this.sysUserService.updateById(sysUser);
         return R.ok(rs ? sysUser.getId() : 0);
     }

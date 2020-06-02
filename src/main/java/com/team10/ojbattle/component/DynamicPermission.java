@@ -4,6 +4,7 @@ package com.team10.ojbattle.component;
 import com.team10.ojbattle.common.exception.MyErrorCodeEnum;
 import com.team10.ojbattle.configuration.auth.MyaccessDeniedException;
 import com.team10.ojbattle.entity.auth.AuthUser;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +14,7 @@ import java.util.regex.Pattern;
 /**
  * @author 陈健航
  */
+@Slf4j
 @Component
 public class DynamicPermission {
 
@@ -34,21 +36,19 @@ public class DynamicPermission {
 
             AuthUser authUser = (AuthUser) principal;
             //得到当前的账号
-            String username = authUser.getUsername();
 
             //当前访问路径
             String requestURI = httpServletRequest.getRequestURI();
             //提交类型
             String urlMethod = httpServletRequest.getMethod();
-
-            // System.out.println("DynamicPermission requestURI = " + requestURI);
+            log.info("requestURI=" + requestURI);
 
             //判断当前路径中是否在资源鉴权中
             boolean rs = authUser.getSysBackendApiList().stream().anyMatch(item -> {
                 String dbUri = item.getUrl();
                 String dbMethod = item.getMethod();
 
-                boolean res = Pattern.compile(dbUri).matcher(requestURI).matches();
+                boolean res = Pattern.compile(dbUri).matcher(requestURI).find();
 
                 //处理null，万一数据库存值
                 dbMethod = (dbMethod == null) ? "" : dbMethod;

@@ -14,17 +14,17 @@ public enum ProblemDifficultyEnum implements IEnum<Integer> {
     /**
      * cpp
      */
-    EASY(1, "简单"),
+    EASY(0, "简单"),
 
     /**
      * java
      */
-    MEDIUM(2,"中等"),
+    MEDIUM(1, "中等"),
 
     /**
      * python
      */
-    HARD(3, "困难");
+    HARD(2, "困难");
 
     ProblemDifficultyEnum(Integer value, String name) {
         this.value = value;

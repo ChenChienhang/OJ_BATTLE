@@ -1,17 +1,14 @@
 package com.team10.ojbattle.service.impl;
 
-import com.team10.ojbattle.component.HeartBeatPool;
-import com.team10.ojbattle.component.JwtTokenUtil;
-import com.team10.ojbattle.component.MatchingPool;
-import com.team10.ojbattle.entity.Submission;
+import com.team10.ojbattle.common.enums.TypeEnum;
+import com.team10.ojbattle.entity.Game;
+import com.team10.ojbattle.entity.Problem;
 import com.team10.ojbattle.entity.auth.AuthUser;
 import com.team10.ojbattle.service.BattleService;
+import com.team10.ojbattle.service.GameService;
+import com.team10.ojbattle.service.ProblemService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Map;
 
 /**
  * @author: 陈健航
@@ -23,71 +20,25 @@ import java.util.Map;
 public class BattleServiceImpl implements BattleService {
 
     @Autowired
-    HeartBeatPool heartBeatPool;
+    ProblemService problemService;
 
     @Autowired
-    MatchingPool matchingPool;
-
-    @Autowired
-    JwtTokenUtil jwtTokenUtil;
+    GameService gameService;
 
     @Override
-    public String battleMatch() {
-        // 加入匹配池
-        matchingPool.add();
-        return jwtTokenUtil.generateToken((AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-    }
-
-    /**
-     * 返回结果：1.自己已经被别人匹配，2.匹配池数量不足，3.自己匹配了别人
-     *
-     * @return
-     */
-    @Override
-    public Map<String, String> firstShakeHand() {
-        return matchingPool.firstShakeHand();
-    }
-
-    /**
-     * @return
-     */
-    @Transactional(rollbackFor = Exception.class)
-    @Override
-    public Long secondShakeHand() {
-        return matchingPool.secondShakeHand();
-    }
-
-    /**
-     * 等待确认，可能等待确认异常
-     * @param opponentId 对手id
-     * @param opponentName 对手用户名
-     * @return gameId对局id/RET_KEEP_CONFIRM轮询确认/RET_MATCH_ERROR匹配错误
-     */
-    @Override
-    public String thirdShakeHand(String opponentId, String opponentName) {
-        return matchingPool.thirdShakeHand(opponentId, opponentName);
-    }
-
-    /**
-     * 心跳保持
-     *
-     * @param opponentId 对手id
-     * @return state
-     */
-    @Override
-    public String heartBeat(String gameId, String opponentId) {
-        return heartBeatPool.keepHeartBeat(gameId, opponentId);
-    }
-
-    @Override
-    public void submit(Submission submission) {
-    }
-
-    /**
-     * 退出对局，删除对局
-     */
-    @Override
-    public void quit(String gameId) {
-        heartBeatPool.giveUp(gameId);
+    public Long openGame(AuthUser player1, AuthUser player2) {
+        Game game = new Game();
+        game.setType(TypeEnum.Battle);
+        game.setPlayer1Id(player1.getUserId());
+        game.setPlayer1Username(player1.getUsername());
+        //随机取出一条题目
+        Problem problem = problemService.selectOneByRandom();
+        game.setProblemTitle(problem.getTitle());
+        game.setProblemId(problem.getId());
+        game.setProblemDifficulty(problem.getDifficulty());
+        game.setPlayer2Id(player2.getUserId());
+        game.setPlayer2Username(player2.getUsername());
+        gameService.save(game);
+        return game.getId();
     }
 }

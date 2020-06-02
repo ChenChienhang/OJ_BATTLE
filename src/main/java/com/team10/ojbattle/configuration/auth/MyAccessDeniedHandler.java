@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Objects;
 
 
 /**
@@ -24,9 +23,14 @@ public class MyAccessDeniedHandler extends BaseJSONAuthentication implements Acc
     public void handle(HttpServletRequest request,
                        HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException {
-
+        MyErrorCodeEnum errorCodeEnum;
+        try {
+            errorCodeEnum = MyErrorCodeEnum.valueOf(Long.parseLong(accessDeniedException.getMessage()));
+        } catch (Exception e) {
+            errorCodeEnum = MyErrorCodeEnum.HAVEN_NOT_LOGIN_ERROR;
+        }
         //装入token
-        R<String> data = R.failed(Objects.requireNonNull(MyErrorCodeEnum.valueOf(Long.parseLong(accessDeniedException.getMessage()))));
+        R<String> data = R.failed(errorCodeEnum);
         //输出
         this.WriteJSON(request, response, data);
     }

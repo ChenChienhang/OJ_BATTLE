@@ -31,6 +31,8 @@ public class AuthUser implements UserDetails {
 
     private String avatar;
 
+    private String subject;
+
     /**
      * 凭证
      */

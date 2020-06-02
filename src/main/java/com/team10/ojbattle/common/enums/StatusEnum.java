@@ -40,7 +40,7 @@ public enum StatusEnum implements IEnum<Integer> {
     /**
      * 系统错误，编译错误？
      */
-    SYSTEM_ERROR(4, "系统错误");
+    SYSTEM_ERROR(5, "系统错误");
 
     StatusEnum(Integer value, String name) {
         this.value = value;

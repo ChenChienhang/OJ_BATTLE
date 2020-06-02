@@ -39,7 +39,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -199,16 +198,21 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser>
 
     @RabbitListener(queues = EMAIL_QUEUE)
     @Override
-    public void sendRegEmailConsumer(Map<String, String> map) throws IOException {
-        String to = map.get("email");
-        String verifyCode = map.get("verifyCode");
-        String content =
-                emailUtils.readContent("email_content.txt")
-                        .replace("DATE", new SimpleDateFormat("yyyy-MM-dd").format(new Date()))
-                        .replace("VERIFYCODE", verifyCode);
-        String title = "Oj Battle 验证码";
-        emailUtils.sendEmail(to, title, content);
-        log.info("发送验证码" + verifyCode + "到" + to);
+    public void sendRegEmailConsumer(Map<String, String> map) {
+        try {
+            String to = map.get("email");
+            String verifyCode = map.get("verifyCode");
+            String content =
+                    emailUtils.readContent("email_content.txt")
+                            .replace("DATE", new SimpleDateFormat("yyyy-MM-dd").format(new Date()))
+                            .replace("VERIFYCODE", verifyCode);
+            String title = "Oj Battle 验证码";
+            emailUtils.sendEmail(to, title, content);
+            log.info("发送验证码" + verifyCode + "到" + to);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
@@ -314,9 +318,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser>
     public List<SysUser> list() {
         List<SysUser> list = super.list();
         if (list != null) {
-            for (SysUser user : list) {
-                user.setPassword(null);
-            }
+            list.forEach(e -> e.setPassword(null));
         }
         return list;
     }
@@ -331,9 +333,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser>
     public <E extends IPage<SysUser>> E page(E page) {
         E res = super.page(page);
         if (res.getRecords() != null) {
-            for (SysUser user : res.getRecords()) {
-                user.setPassword(null);
-            }
+            res.getRecords().forEach(e -> e.setPassword(null));
         }
         return res;
     }
@@ -342,9 +342,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser>
     public <E extends IPage<SysUser>> E page(E page, Wrapper<SysUser> queryWrapper) {
         E res = super.page(page, queryWrapper);
         if (res.getRecords() != null) {
-            for (SysUser user : res.getRecords()) {
-                user.setPassword(null);
-            }
+            res.getRecords().forEach(e -> e.setPassword(null));
         }
         return res;
     }
@@ -369,9 +367,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser>
      */
     @Override
     public boolean saveBatch(Collection<SysUser> entityList) {
-        for (SysUser user : entityList) {
-            user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        }
+        entityList.forEach(e -> e.setPassword(bCryptPasswordEncoder.encode(e.getPassword())));
         return super.saveBatch(entityList);
     }
 

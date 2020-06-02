@@ -10,6 +10,8 @@ import com.team10.ojbattle.service.GameService;
 import com.team10.ojbattle.service.ProblemService;
 import com.team10.ojbattle.service.SubmissionService;
 import io.netty.util.internal.StringUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,14 +21,19 @@ import org.springframework.stereotype.Service;
  * @author 陈健航
  * @since 2020-04-04 23:50:21
  */
+@Slf4j
 @Service("problemService")
 public class ProblemServiceImpl extends ServiceImpl<ProblemDao, Problem> implements ProblemService {
+
 
     @Autowired
     SubmissionService submissionService;
 
     @Autowired
     GameService gameService;
+
+    @Autowired
+    RabbitTemplate rabbitTemplate;
 
     @Override
     public Problem selectOneByRandom() {

@@ -114,6 +114,6 @@ public enum MyErrorCodeEnum implements IErrorCode {
                 return type;
             }
         }
-        return null;
+        return MyErrorCodeEnum.ERROR;
     }
 }

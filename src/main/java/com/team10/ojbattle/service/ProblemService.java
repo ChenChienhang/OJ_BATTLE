@@ -1,4 +1,5 @@
 package com.team10.ojbattle.service;
+
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.team10.ojbattle.entity.Problem;
 
@@ -12,7 +13,9 @@ public interface ProblemService extends IService<Problem> {
 
     /**
      * 随机查一道题出来
+     *
      * @return
      */
     Problem selectOneByRandom();
+
 }

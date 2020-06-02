@@ -76,6 +76,7 @@
             <artifactId>mybatis-plus-boot-starter</artifactId>
             <version>3.3.1.tmp</version>
         </dependency>
+
         <!--rabbitmq-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -134,13 +135,6 @@
             <version>1.27.0.0</version>
         </dependency>
 
-        <!--redis分布式锁组件-->
-        <dependency>
-            <groupId>cn.keking</groupId>
-            <artifactId>spring-boot-klock-starter</artifactId>
-            <version>1.4-RELEASE</version>
-        </dependency>
-
         <!--        easyexcel-->
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -151,8 +145,40 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.66</version>
+            <version>1.2.68</version>
         </dependency>
+
+        <!--websosket -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.diffplug.guava</groupId>
+            <artifactId>guava-concurrent</artifactId>
+            <version>19.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.12</version>
+        </dependency>
+
+        <!-- sha256要用-->
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.14</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.jetbrains/annotations -->
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>19.0.0</version>
+        </dependency>
+
 
     </dependencies>
 
@@ -180,9 +206,9 @@
 
                 <configuration>
                     <!--远程Docker的地址-->
-                    <dockerHost>http://39.97.115.210:2375</dockerHost>
+                    <dockerHost>http://118.178.253.239:2375</dockerHost>
                     <!--镜像名称，前缀/项目名-->
-                    <imageName>${docker.image.prefix}/${project.artifactId}</imageName>
+                    <imageName>${docker.image.prefix}/${project.artifactId}-test</imageName>
                     <dockerDirectory>src/main/docker</dockerDirectory>
                     <resources>
                         <resource>

@@ -12,6 +12,8 @@ import java.util.Map;
 
 /**
  * JWT生成令牌、验证令牌、获取令牌
+ *
+ * @author CJH
  */
 @Component
 public class JwtTokenUtil {
@@ -69,9 +71,8 @@ public class JwtTokenUtil {
             Date expiration = claims.getExpiration();
             return expiration.before(new Date());
         } catch (Exception e) {
-            new Throwable(e);
+            throw new Exception(e);
         }
-        return true;
     }
 
     /**

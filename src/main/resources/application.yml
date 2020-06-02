@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 9001
 
 spring:
   datasource:
@@ -25,6 +25,7 @@ spring:
       filters: stat
       connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
       use-global-data-source-stat: true
+
 
   servlet:
     multipart:
@@ -64,10 +65,6 @@ spring:
           connectiontimeout: 10000
           # 邮件发送时间的限制，单位毫秒
           writetimeout: 10000
-  #redis锁
-  klock:
-    address: 118.178.253.239:6379
-    password: R1e3d2i2s9798448?
 
 mybatis-plus:
   global-config:
@@ -90,5 +87,15 @@ mybatis-plus:
   #扫描枚举配置包
   type-enums-package: com.team10.ojbattle.common.enums
 
+http_pool:
+  max_total: 200
+  default_max_per_route: 100
+  connect_timeout: 5000
+  connection_request_timeout: 1000
+  socket_timeout: 65000
+  validate_after_inactivity: 2000
+
+token: OJ_BATTLE
+server_base_url: "132"
 
 

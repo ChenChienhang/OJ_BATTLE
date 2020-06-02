@@ -1,15 +1,12 @@
 package com.team10.ojbattle.configuration.auth;
 
 
-import com.baomidou.mybatisplus.extension.api.IErrorCode;
 import com.baomidou.mybatisplus.extension.api.R;
 import com.team10.ojbattle.common.exception.MyErrorCodeEnum;
-import com.team10.ojbattle.common.exception.MyException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -27,7 +24,7 @@ public class MyAuthenticationFailureHandlerBase extends BaseJSONAuthentication i
     @Override
     public void onAuthenticationFailure(HttpServletRequest request,
                                         HttpServletResponse response,
-                                        AuthenticationException e) throws IOException, ServletException {
+                                        AuthenticationException e) throws IOException {
 
         R<String> data = R.failed(Objects.requireNonNull(MyErrorCodeEnum.valueOf(Long.parseLong(e.getMessage()))));
         //输出

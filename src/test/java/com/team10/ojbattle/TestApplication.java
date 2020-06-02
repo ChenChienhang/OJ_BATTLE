@@ -2,17 +2,16 @@ package com.team10.ojbattle;
 
 
 import com.alibaba.excel.EasyExcel;
-import com.team10.ojbattle.common.utils.QuestionDataListener;
-import com.team10.ojbattle.common.utils.SysUserDataListener;
+import com.team10.ojbattle.common.utils.excel.QuestionDataListener;
 import com.team10.ojbattle.component.JwtTokenUtil;
-import com.team10.ojbattle.dao.SysUserDao;
+import com.team10.ojbattle.component.MatchingServer;
 import com.team10.ojbattle.entity.Problem;
-import com.team10.ojbattle.entity.SysUser;
 import com.team10.ojbattle.service.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -24,8 +23,11 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @version: 1.0
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = OjBattleApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class TestApplication {
+
+    @Autowired
+    ApplicationContext applicationContext;
 
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -52,11 +54,20 @@ public class TestApplication {
     SysRoleBackendApiService sysRoleBackendApiService;
 
     @Autowired
-    SysUserDao sysUserDao;
+    SubmissionService submissionService;
+
+    @Autowired
+    MatchingServer matchingServer;
 
     @Test
     public void getBC() {
-        System.out.println(bCryptPasswordEncoder.encode("123456"));
+//        Long aLong = stringRedisTemplate.opsForZSet().removeRange("MATCH_POOL", 0, stringRedisTemplate.opsForZSet().size("MATCH_POOL") - 1);
+//        System.out.println(aLong);
+//        stringRedisTemplate.opsForSet().add("1", "1");
+//        System.out.println(stringRedisTemplate.opsForSet().size("1"));
+//        stringRedisTemplate.opsForSet().remove("1", "1");
+        System.out.println(stringRedisTemplate.opsForSet().size("2"));
+
     }
 
     @Test
@@ -65,34 +76,6 @@ public class TestApplication {
         String fileName = "C:\\Users\\CJH\\IdeaProjects\\oj-battle\\src\\main\\resources\\demo.xlsx";
         System.out.println(fileName);
         EasyExcel.read(fileName, Problem.class, new QuestionDataListener(problemService)).sheet(0).doRead();
-    }
-
-    @Test
-    public void excelToUser() {
-        //根据本机xlsx的绝对路径修改
-        String fileName = "C:\\Users\\CJH\\IdeaProjects\\oj-battle\\src\\main\\resources\\demo.xlsx";
-        System.out.println(fileName);
-        EasyExcel.read(fileName, SysUser.class, new SysUserDataListener(sysUserService)).sheet(2).doRead();
-    }
-
-    /**
-     * 这个有问题
-     */
-    @Test
-    public void excelToGame() {
-//        System.out.println(sysUserDao.getByEmail("888888@qq.com"));
-//        String fileName = "C:\\Users\\CJH\\IdeaProjects\\oj-battle\\src\\main\\resources\\demo.xlsx";
-//        System.out.println(fileName);
-//        EasyExcel.read(fileName, SysRoleBackendApi.class, new SysRoleBackendApiDataListener(sysRoleBackendApiService)).sheet(3).doRead();
-//        EasyExcel.read(fileName, SysBackendApi.class, new SysBackendApiDataListener(sysBackendApiService)).sheet(2).doRead();
-        //根据本机xlsx的绝对路径修改
-//        String fileName = "C:\\Users\\CJH\\IdeaProjects\\oj-battle\\src\\main\\resources\\demo.xlsx";
-//        EasyExcel.read(fileName, Game.class, new GameDataListener(gameService)).sheet(3).doRead();
-//        AntPathMatcher matcher = new AntPathMatcher();"^[0-9]*$"
-//        Pattern pattern = Pattern.compile("/game\\?");
-//        System.out.println(pattern.matcher("/game?pageSize=2&userId=2").find());
-//        System.out.println(pattern.matcher("game/find").find());
-        System.out.println(bCryptPasswordEncoder.matches("88888888", "$2a$10$e1EG850KcZUc2iaXYfvRYOjHdM3vBWZpa4sxd6rDVJ3lIvZPFAS8."));
     }
 
 
