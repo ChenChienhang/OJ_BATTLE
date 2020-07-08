@@ -22,20 +22,20 @@ public enum TypeEnum implements IEnum<Integer> {
      */
     Practice(1, "练习模式");
 
-    TypeEnum(Integer value, String name) {
+    TypeEnum(Integer value, String detail) {
         this.value = value;
-        this.name = name;
+        this.detail = detail;
     }
 
     @EnumValue
     private final Integer value;
 
     @JsonValue
-    private final String name;
+    private final String detail;
 
-    public static TypeEnum valueOf(int value) {
-        for (TypeEnum type : TypeEnum.values()){
-            if (type.getValue() == value){
+    public static TypeEnum valueOf(int code) {
+        for (TypeEnum type : TypeEnum.values()) {
+            if (type.getValue() == code) {
                 return type;
             }
         }
@@ -45,5 +45,9 @@ public enum TypeEnum implements IEnum<Integer> {
     @Override
     public Integer getValue() {
         return value;
+    }
+
+    public String getDetail() {
+        return detail;
     }
 }

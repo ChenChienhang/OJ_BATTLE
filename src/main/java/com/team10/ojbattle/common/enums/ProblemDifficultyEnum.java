@@ -26,20 +26,20 @@ public enum ProblemDifficultyEnum implements IEnum<Integer> {
      */
     HARD(2, "困难");
 
-    ProblemDifficultyEnum(Integer value, String name) {
+    ProblemDifficultyEnum(Integer value, String detail) {
         this.value = value;
-        this.name = name;
+        this.detail = detail;
     }
 
     @EnumValue
     private final Integer value;
 
     @JsonValue
-    private final String name;
+    private final String detail;
 
-    public static ProblemDifficultyEnum valueOf(int value) {
-        for (ProblemDifficultyEnum type : ProblemDifficultyEnum.values()){
-            if (type.getValue() == value){
+    public static ProblemDifficultyEnum valueOf(int code) {
+        for (ProblemDifficultyEnum type : ProblemDifficultyEnum.values()) {
+            if (type.getValue() == code) {
                 return type;
             }
         }
@@ -51,4 +51,8 @@ public enum ProblemDifficultyEnum implements IEnum<Integer> {
         return value;
     }
 
+
+    public String getDetail() {
+        return detail;
+    }
 }

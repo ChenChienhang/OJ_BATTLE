@@ -1,7 +1,7 @@
 package com.team10.ojbattle.component;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.team10.ojbattle.common.enums.LanguageConfigEnum;
 import org.apache.commons.codec.binary.Hex;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +16,9 @@ import org.springframework.web.client.RestTemplate;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author: 陈健航
@@ -36,13 +39,12 @@ public class JudgeServerClient {
     private RestTemplate restTemplate;
 
 
-    private HttpEntity<JSONObject> generatePostJson(JSONObject jsonMap) {
+    private HttpEntity<String> generatePostJson(Map<String, Object> params) {
         //都可以在这里追加头信息
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("X-Judge-Server-Token", getSHA256Str(token));
-        MediaType type = MediaType.parseMediaType("application/json;charset=UTF-8");
-        httpHeaders.setContentType(type);
-        return new HttpEntity<>(jsonMap, httpHeaders);
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new HttpEntity<>(JSON.toJSONString(params), httpHeaders);
     }
 
     private String getSHA256Str(String str) {
@@ -58,30 +60,32 @@ public class JudgeServerClient {
         return encodeStr;
     }
 
-    public String judge(@NotNull String src, @NotNull LanguageConfigEnum languageConfigEnum,
-                        @NotNull String maxCpuTime, @NotNull String maxMemory,
-                        @NotNull String testCaseId, @NotNull boolean output, String testCase,
-                        String spjVersion, String spjConfig,
-                        String spjCompileConfig, String spjSrc) {
-        JSONObject data = new JSONObject();
-        data.put("language_config", languageConfigEnum.getValue());
+    public JSONObject judge(@NotNull String src, @NotNull Map<String, Object> languageConfigEnum,
+                            int maxCpuTime, int maxMemory,
+                            @NotNull String testCaseId, Boolean output, String testCase,
+                            String spjVersion, String spjConfig,
+                            String spjCompileConfig, String spjSrc) {
+        Map<String, Object> data = new HashMap<>(10);
+        data.put("language_config", languageConfigEnum);
         data.put("src", src);
-        data.put("maxCpuTime", maxCpuTime);
-        data.put("maxMemory", maxMemory);
+        data.put("max_cpu_time", maxCpuTime);
+        data.put("max_memory", maxMemory);
         data.put("test_case_id", testCaseId);
-        data.put("testCase", testCase);
-        data.put("spjVersion", spjVersion);
-        data.put("spjConfig", spjConfig);
-        data.put("spjCompileConfig", spjCompileConfig);
-        data.put("spjSrc", spjSrc);
-        data.put("output", output);
-        String uri = "http://127.0.0.1:80";
-        ResponseEntity<String> apiResponse = restTemplate.postForEntity
+        Optional.ofNullable(testCase).ifPresent(e -> data.put("test_case", e));
+        Optional.ofNullable(spjVersion).ifPresent(e -> data.put("spj_version", e));
+        Optional.ofNullable(spjConfig).ifPresent(e -> data.put("spj_config", e));
+        Optional.ofNullable(spjCompileConfig).ifPresent(e -> data.put("spj_compile_config", e));
+        Optional.ofNullable(spjSrc).ifPresent(e -> data.put("spj_src", e));
+        Optional.ofNullable(output).ifPresent(e -> data.put("output", e));
+        System.out.println(JSON.toJSONString(data));
+
+        ResponseEntity<JSONObject> apiResponse = restTemplate.postForEntity
                 (
-                        uri,
+                        serverBaseUrl + "/judge",
                         generatePostJson(data),
-                        String.class
+                        JSONObject.class
                 );
         return apiResponse.getBody();
     }
 }
+

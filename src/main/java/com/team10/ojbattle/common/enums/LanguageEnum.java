@@ -22,24 +22,29 @@ public enum LanguageEnum implements IEnum<Integer> {
     JAVA(1, "Java"),
 
     /**
-     * python
+     * python3
      */
-    PYTHON(2, "Python");
+    PYTHON3(2, "Python"),
 
-    LanguageEnum(Integer value, String name) {
+    /**
+     * python3
+     */
+    PYTHON2(4, "Python");
+
+    LanguageEnum(Integer value, String detail) {
         this.value = value;
-        this.name = name;
+        this.detail = detail;
     }
 
     @EnumValue
     private final Integer value;
 
     @JsonValue
-    private final String name;
+    private final String detail;
 
-    public static LanguageEnum valueOf(int value) {
-        for (LanguageEnum type : LanguageEnum.values()){
-            if (type.getValue() == value){
+    public static LanguageEnum valueOf(int code) {
+        for (LanguageEnum type : LanguageEnum.values()) {
+            if (type.getValue() == code) {
                 return type;
             }
         }
@@ -51,4 +56,8 @@ public enum LanguageEnum implements IEnum<Integer> {
         return value;
     }
 
+
+    public String getDetail() {
+        return detail;
+    }
 }

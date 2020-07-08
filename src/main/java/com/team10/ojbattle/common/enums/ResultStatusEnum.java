@@ -10,7 +10,12 @@ import com.fasterxml.jackson.annotation.JsonValue;
  * @since: 2020/5/15 22:24
  * @version: 1.0
  */
-public enum StatusEnum implements IEnum<Integer> {
+public enum ResultStatusEnum implements IEnum<Integer> {
+
+    /**
+     * SUCCESS
+     */
+    WRONG_ANSWER(-1, "解答错误"),
 
     /**
      * SUCCESS
@@ -38,24 +43,28 @@ public enum StatusEnum implements IEnum<Integer> {
     RUNTIME_ERROR(4, "运行时错误"),
 
     /**
-     * 系统错误，编译错误？
+     * 系统错误
      */
-    SYSTEM_ERROR(5, "系统错误");
+    SYSTEM_ERROR(5, "系统错误"),
+    /**
+     * 系统错误
+     */
+    COMPILER_ERROR(6, "系统错误");
 
-    StatusEnum(Integer value, String name) {
+    ResultStatusEnum(Integer value, String detail) {
         this.value = value;
-        this.name = name;
+        this.detail = detail;
     }
 
     @EnumValue
     private final Integer value;
 
     @JsonValue
-    private final String name;
+    private final String detail;
 
-    public static StatusEnum valueOf(int value) {
-        for (StatusEnum type : StatusEnum.values()) {
-            if (type.getValue() == value) {
+    public static ResultStatusEnum valueOf(int code) {
+        for (ResultStatusEnum type : ResultStatusEnum.values()) {
+            if (type.getValue() == code) {
                 return type;
             }
         }
@@ -65,5 +74,9 @@ public enum StatusEnum implements IEnum<Integer> {
     @Override
     public Integer getValue() {
         return value;
+    }
+
+    public String getDetail() {
+        return detail;
     }
 }

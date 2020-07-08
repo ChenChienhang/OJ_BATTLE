@@ -74,7 +74,7 @@
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>3.3.1.tmp</version>
+            <version>3.3.2</version>
         </dependency>
 
         <!--rabbitmq-->
@@ -178,8 +178,6 @@
             <artifactId>annotations</artifactId>
             <version>19.0.0</version>
         </dependency>
-
-
     </dependencies>
 
 
@@ -188,7 +186,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

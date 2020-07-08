@@ -3,7 +3,7 @@ package com.team10.ojbattle.common.enums.converter;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.Converter;
-import com.team10.ojbattle.common.enums.StatusEnum;
+import com.team10.ojbattle.common.enums.ResultStatusEnum;
 
 /**
  * @author: 陈健航
@@ -11,11 +11,11 @@ import com.team10.ojbattle.common.enums.StatusEnum;
  * @since: 2020/5/15 22:28
  * @version: 1.0
  */
-public class StatusEnumConverter implements Converter<Integer, StatusEnum> {
+public class StatusEnumConverter implements Converter<Integer, ResultStatusEnum> {
 
     @Override
-    public StatusEnum convert(Integer value) {
-        return StatusEnum.valueOf(value);
+    public ResultStatusEnum convert(Integer value) {
+        return ResultStatusEnum.valueOf(value);
     }
 
     @Override
@@ -25,6 +25,6 @@ public class StatusEnumConverter implements Converter<Integer, StatusEnum> {
 
     @Override
     public JavaType getOutputType(TypeFactory typeFactory) {
-        return typeFactory.constructType(StatusEnum.class);
+        return typeFactory.constructType(ResultStatusEnum.class);
     }
 }

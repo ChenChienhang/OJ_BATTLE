@@ -25,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class RestTemplateConfig {
 
+
     @Value("${http_pool.max_total}")
     private int maxTotal;
 

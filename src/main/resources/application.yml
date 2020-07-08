@@ -26,7 +26,6 @@ spring:
       connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
       use-global-data-source-stat: true
 
-
   servlet:
     multipart:
       #文件大小
@@ -95,7 +94,7 @@ http_pool:
   socket_timeout: 65000
   validate_after_inactivity: 2000
 
-token: OJ_BATTLE
-server_base_url: "132"
+token: YOUR_TOKEN_HERE
+server_base_url: http://118.178.253.239:12358
 
 

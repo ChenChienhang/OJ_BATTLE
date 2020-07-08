@@ -6,6 +6,7 @@ import com.team10.ojbattle.common.utils.ThreadPool;
 import com.team10.ojbattle.entity.DelayTask;
 import com.team10.ojbattle.entity.auth.AuthUser;
 import com.team10.ojbattle.service.BattleService;
+import com.team10.ojbattle.websocket.MatchingServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -68,8 +69,10 @@ public class MatchingPool {
         } finally {
             lock.unlock();
         }
+
         delayQueue.offer(new DelayTask(JSON.toJSONString(authUser), 10000));
         startMatch();
+        log.info("add  the pool {}", stringRedisTemplate.opsForZSet().size(MATCH_POOL));
     }
 
     /**
@@ -77,12 +80,13 @@ public class MatchingPool {
      */
     private void startMatch() {
         //启动线程
-        if (!MatchingPool.isRun) {
+        if (!isRun) {
             ThreadPool.getInstance().execute(() -> {
+                log.info("start match");
                 isRun = true;
-                while (isRun) {
+                while (true) {
                     //上锁
-                    log.info("start match");
+                    log.info("start while");
                     try {
                         DelayTask delayTask = delayQueue.take();
                         lock.lock();
@@ -125,10 +129,6 @@ public class MatchingPool {
                                     delayQueue.offer(new DelayTask(delayTask.getSubject(), 10000));
                                     log.info("the pool is not big enough {}", size);
                                 }
-                            }
-                            //没有待匹配的人，中止消费线程
-                            if (delayQueue.size() == 0) {
-                                isRun = false;
                             }
                         } finally {
                             //释放锁

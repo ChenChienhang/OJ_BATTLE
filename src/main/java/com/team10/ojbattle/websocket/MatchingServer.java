@@ -1,8 +1,11 @@
-package com.team10.ojbattle.component;
+package com.team10.ojbattle.websocket;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.team10.ojbattle.component.JwtTokenUtil;
+import com.team10.ojbattle.component.MatchingPool;
 import com.team10.ojbattle.entity.auth.AuthUser;
+import io.netty.util.internal.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -120,6 +123,9 @@ public class MatchingServer {
      */
     private AuthUser verify(String message) {
         String token = message.replace("Bearer", "").trim();
+        if (StringUtil.isNullOrEmpty(token)) {
+            return null;
+        }
         AuthUser res = null;
         boolean tokenExpired;
         try {
