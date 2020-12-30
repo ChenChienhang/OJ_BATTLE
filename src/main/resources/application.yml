@@ -4,9 +4,9 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://118.178.253.239:3306/oj_battle?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8
+    url: xxxxxx
     username: root
-    password: M1y3s2q2l9798448?
+    password: xxxxxx
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
       initial-size: 8
@@ -34,21 +34,20 @@ spring:
       max-request-size: 2MB
 
   redis:
-    host: 118.178.253.239
-    password: R1e3d2i2s9798448?
-
+    host: xxxxx
+    password: xxxxx
   rabbitmq:
-    host: 118.178.253.239
-    username: guest
-    password: R1a3b2b2i9t7m9q8448?
+    host: xxxxxx
+    username: xxxx
+    password: xxxxx
 
   #邮件系统
   mail:
     host: smtp.qq.com
     port: 465
-    username: jankins.chen@foxmail.com
+    username: xxxxxxxx
     #授权码
-    password: owxqnpwfaoegbbbg
+    password: xxxxxx
     protocol: smtp
     default-encoding: utf-8
     properties:
