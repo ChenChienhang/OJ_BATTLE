@@ -11,6 +11,9 @@ import com.team10.ojbattle.service.ProblemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
+import java.util.List;
+
 /**
  * (Game)表服务实现类
  *
@@ -29,5 +32,4 @@ public class GameServiceImpl extends ServiceImpl<GameDao, Game> implements GameS
         wrapper.eq(Game::getPlayer1Id, userId).or().eq(Game::getPlayer2Id, userId);
         return page(new Page<>(current, size), wrapper);
     }
-
 }

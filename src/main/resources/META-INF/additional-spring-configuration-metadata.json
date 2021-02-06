@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "http_pool.default_max_per_route",
+      "type": "java.lang.String",
+      "description": "Description for http_pool.default_max_per_route."
+  }
+] }

@@ -46,10 +46,11 @@ public enum ResultStatusEnum implements IEnum<Integer> {
      * 系统错误
      */
     SYSTEM_ERROR(5, "系统错误"),
+
     /**
      * 系统错误
      */
-    COMPILER_ERROR(6, "系统错误");
+    COMPILER_ERROR(6, "编译错误");
 
     ResultStatusEnum(Integer value, String detail) {
         this.value = value;

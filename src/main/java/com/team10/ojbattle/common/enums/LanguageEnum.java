@@ -11,20 +11,26 @@ import com.fasterxml.jackson.annotation.JsonValue;
  * @version: 1.0
  */
 public enum LanguageEnum implements IEnum<Integer> {
+
+    /**
+     * c
+     */
+    C(0, "C"),
+
     /**
      * cpp
      */
-    CPP(0, "C++"),
+    CPP(1, "C++"),
 
     /**
      * java
      */
-    JAVA(1, "Java"),
+    JAVA(2, "Java"),
 
     /**
      * python3
      */
-    PYTHON3(2, "Python"),
+    PYTHON3(3, "Python"),
 
     /**
      * python3

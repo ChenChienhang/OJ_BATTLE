@@ -39,6 +39,12 @@ public class JudgeServerClient {
     private RestTemplate restTemplate;
 
 
+    /**
+     * 生成Json数据和头信息
+     *
+     * @param params
+     * @return
+     */
     private HttpEntity<String> generatePostJson(Map<String, Object> params) {
         //都可以在这里追加头信息
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -60,6 +66,21 @@ public class JudgeServerClient {
         return encodeStr;
     }
 
+    /**
+     * 判题
+     * @param src
+     * @param languageConfigEnum
+     * @param maxCpuTime
+     * @param maxMemory
+     * @param testCaseId
+     * @param output
+     * @param testCase
+     * @param spjVersion
+     * @param spjConfig
+     * @param spjCompileConfig
+     * @param spjSrc
+     * @return
+     */
     public JSONObject judge(@NotNull String src, @NotNull Map<String, Object> languageConfigEnum,
                             int maxCpuTime, int maxMemory,
                             @NotNull String testCaseId, Boolean output, String testCase,

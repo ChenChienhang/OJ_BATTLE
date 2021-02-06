@@ -16,10 +16,10 @@ public interface ProblemDao extends BaseMapper<Problem> {
      * 随机选择一条题目
      * @return
      */
-    @Select("SELECT id, title, difficulty" +
-            "   FROM problem " +
-            "   ORDER BY RAND() " +
-            "   LIMIT 1")
+    @Select("SELECT id, title, difficulty\n" +
+            "FROM problem\n" +
+            "where difficulty = 1\n" +
+            "ORDER BY RAND()")
     Problem selectByRandom();
 
 }

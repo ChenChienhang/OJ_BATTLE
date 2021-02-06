@@ -240,6 +240,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser>
 
     @Override
     public IPage<SysUser> listTopList(Integer current, Integer size) {
+        log.info("111");
         LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<>();
         wrapper.orderByDesc(SysUser::getRating);
         return this.page(new Page<>(current, size), wrapper);

@@ -19,7 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author: 陈健航
@@ -69,7 +71,7 @@ public class BattleServiceImpl implements BattleService {
         if (game.getWinnerId() == null) {
             //填充胜利者
             game.setWinnerId(player.getUserId());
-            game.setWinnerUsername(game.getWinnerUsername());
+            game.setWinnerUsername(player.getUsername());
         }
         //填充胜利时间,isPass标识是否因为提交题目通过的
         if (isJudgePass) {
@@ -116,12 +118,15 @@ public class BattleServiceImpl implements BattleService {
                 languageConfig = LanguageConfig.C_LANG_CONFIG;
                 break;
             case 1:
-                languageConfig = LanguageConfig.JAVA_LANG_CONFIG;
+                languageConfig = LanguageConfig.CPP_LANG_CONFIG;
                 break;
             case 2:
-                languageConfig = LanguageConfig.PY3_LANG_CONFIG;
+                languageConfig = LanguageConfig.JAVA_LANG_CONFIG;
                 break;
             case 3:
+                languageConfig = LanguageConfig.PY3_LANG_CONFIG;
+                break;
+            case 4:
                 languageConfig = LanguageConfig.PY2_LANG_CONFIG;
                 break;
             default:
@@ -149,31 +154,41 @@ public class BattleServiceImpl implements BattleService {
 
         if (judge.get("err") == null) {
             //正常执行，更新submission表
-            JSONObject data = judge.getJSONArray("data").getJSONObject(0);
-            //运行内存
-            Integer memory = (Integer) data.get("memory");
-            //运行时间
-            Integer realTime = (Integer) data.get("real_time");
+            List<JSONObject> data = judge.getJSONArray("data").toJavaList(JSONObject.class);
             //结果集
-            Integer result = (Integer) (data.get("result"));
+            boolean finalResult = data.stream().allMatch(e -> e.getInteger("result").equals(0));
+            //运行内存
+            AtomicReference<Integer> memory = new AtomicReference<>(0);
+            data.forEach(e -> memory.updateAndGet(v -> v + e.getInteger("memory")));
+            //运行时间
+            AtomicReference<Integer> realTime = new AtomicReference<>(0);
+            data.forEach(e -> realTime.updateAndGet(v -> v + e.getInteger("real_time")));
+            //结果集
+            Integer result = 0;
+            for (JSONObject e : data) {
+                if (!e.getInteger("result").equals(0)) {
+                    result = e.getInteger("result");
+                    break;
+                }
+            }
             //新增submission
             long submissionId = insertSubmission(
                     game.getId(),
                     language,
-                    memory,
+                    memory.get(),
                     playerId,
                     problemId,
                     problem.getTitle(),
                     result,
                     src,
-                    realTime
+                    realTime.get()
             );
             //修改question表
-            refreshQuestion(problemId, result.equals(0));
+            refreshQuestion(problemId, finalResult);
             //修改uer表
-            refreshUser(playerId, result.equals(0), problem.getDifficulty().getValue() + 1);
+            refreshUser(playerId, finalResult, problem.getDifficulty().getValue() + 1);
             //代码能通过就修改game表
-            if (result.equals(0)) {
+            if (finalResult) {
                 cLoseGame(user, gameId, true);
             }
             ret.put("data", submissionService.getById(submissionId));

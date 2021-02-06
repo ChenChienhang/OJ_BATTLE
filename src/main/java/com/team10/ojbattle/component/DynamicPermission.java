@@ -22,9 +22,9 @@ public class DynamicPermission {
     /**
      * 判断有访问API的权限
      *
-     * @param httpServletRequest
-     * @param authentication
-     * @return
+     * @param httpServletRequest httpServletRequest
+     * @param authentication     authentication
+     * @return boolean
      * @throws MyaccessDeniedException
      */
     public boolean checkPermission(HttpServletRequest httpServletRequest,
@@ -33,26 +33,20 @@ public class DynamicPermission {
         Object principal = authentication.getPrincipal();
 
         if (principal instanceof AuthUser) {
-
-            AuthUser authUser = (AuthUser) principal;
             //得到当前的账号
-
+            AuthUser authUser = (AuthUser) principal;
             //当前访问路径
             String requestURI = httpServletRequest.getRequestURI();
             //提交类型
             String urlMethod = httpServletRequest.getMethod();
-            log.info("requestURI=" + requestURI);
-
+            log.info("requestURI = " + requestURI);
             //判断当前路径中是否在资源鉴权中
             boolean rs = authUser.getSysBackendApiList().stream().anyMatch(item -> {
                 String dbUri = item.getUrl();
                 String dbMethod = item.getMethod();
-
                 boolean res = Pattern.compile(dbUri).matcher(requestURI).find();
-
                 //处理null，万一数据库存值
                 dbMethod = (dbMethod == null) ? "" : dbMethod;
-
                 //两者都成立，返回真，否则返回假
                 return res && urlMethod.equals(dbMethod);
             });
@@ -61,20 +55,8 @@ public class DynamicPermission {
             } else {
                 throw new MyaccessDeniedException(String.valueOf(MyErrorCodeEnum.ACCESS_ERROR.getCode()));
             }
-
         } else {
             throw new MyaccessDeniedException(String.valueOf(MyErrorCodeEnum.ERROR.getCode()));
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
